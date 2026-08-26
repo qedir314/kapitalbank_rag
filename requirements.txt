@@ -1,0 +1,28 @@
+# Scraping
+requests>=2.32
+beautifulsoup4>=4.12
+lxml>=5.3
+trafilatura>=2.0
+ftfy>=6.3          # repair legacy mojibake in scraped pages
+
+# Embeddings & vector store
+sentence-transformers>=3.3
+chromadb>=0.6
+rank_bm25>=0.2.2   # sparse lexical retrieval for hybrid search
+
+# LLM client (DeepSeek via OpenAI-compatible API)
+openai>=1.60
+
+# App & data
+streamlit>=1.41
+# pyarrow 25.x ships a lib.dll that Windows Smart App Control refuses to load;
+# 24.x passes the reputation check (streamlit needs pyarrow>=7,<26)
+pyarrow>=7.0,<25
+pandas>=2.2
+pyyaml>=6.0
+pydantic-settings>=2.7
+python-dotenv>=1.0
+tqdm>=4.67
+
+# Dev
+pytest>=8.3

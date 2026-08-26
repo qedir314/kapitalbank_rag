@@ -1,0 +1,9 @@
+# The source-file watcher imports every installed module to map what it can
+# hot-reload; transformers' optional vision backends then spam the console with
+# `ModuleNotFoundError: No module named 'torchvision'`. Auto-reload isn't worth
+# that noise (or the startup cost of scanning ~1GB of site-packages).
+[server]
+fileWatcherType = "none"
+
+[browser]
+gatherUsageStats = false

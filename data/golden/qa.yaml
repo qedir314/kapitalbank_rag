@@ -1,0 +1,188 @@
+# Golden QA set for RAG evaluation.
+# expected_sources are URL fragments — a retrieval counts as a hit when any
+# returned URL contains one of them (case-insensitive substring match).
+# unanswerable: true => the correct behavior is an explicit "I don't know".
+#
+# NOTE: fragments reference final URLs; some kapitalbank.az pages 301 to
+# birbank.az, so both variants are listed where relevant. Validate against
+# data/raw/pages.jsonl after re-scraping.
+
+- id: en-cards-001
+  question: "What is the Birbank Miles debit card and what are its main features?"
+  category: cards
+  lang: en
+  expected_sources: ["debet-kartlar"]
+
+- id: en-cards-002
+  question: "Which premium cards does Kapital Bank offer?"
+  category: cards
+  lang: en
+  expected_sources: ["private.birbank.az", "debet-kartlar"]
+
+- id: en-deposits-001
+  question: "What deposit products does Kapital Bank offer?"
+  category: deposits
+  lang: en
+  expected_sources: ["deposits"]
+
+- id: en-faq-001
+  question: "How can I block my card if it is lost or stolen?"
+  category: faq
+  lang: en
+  expected_sources: ["faq", "how-to"]
+
+- id: en-transfers-001
+  question: "How can I send money via Western Union through Kapital Bank?"
+  category: money-transfers
+  lang: en
+  expected_sources: ["pul-kocurmeleri", "western-union"]
+
+- id: en-loans-001
+  question: "What loan products does Kapital Bank offer?"
+  category: loans
+  lang: en
+  expected_sources: ["kreditler", "loans"]
+
+- id: en-howto-001
+  question: "How do I order a new debit card online?"
+  category: how-to
+  lang: en
+  expected_sources: ["how-to", "online-order"]
+
+- id: en-insurance-001
+  question: "Which insurance products can I get through Kapital Bank?"
+  category: insurance
+  lang: en
+  expected_sources: ["insurance", "sigortalar"]
+
+- id: en-birbank-001
+  question: "What is Birbank?"
+  category: birbank
+  lang: en
+  expected_sources: ["birbank"]
+
+- id: az-cards-001
+  question: "Kapital Bankın taksit kartları hansılardır?"
+  category: cards
+  lang: az
+  expected_sources: ["debet-kartlar", "taksitkartlar"]
+
+- id: az-cards-002
+  question: "Birbank Cashback debet kartı hansı imkanları verir?"
+  category: cards
+  lang: az
+  expected_sources: ["debet-kartlar", "cashback-debet"]
+
+- id: az-deposits-001
+  question: "Kapital Bankın depozit qutuları ilə bağlı şərtlər hansılardır?"
+  category: deposits
+  lang: az
+  expected_sources: ["depozit-seyfleri", "deposit-safes"]
+
+- id: az-loans-001
+  question: "Nağd pul krediti üçün maksimal məbləğ nə qədərdir?"
+  category: loans
+  lang: az
+  expected_sources: ["naqd", "kreditler"]
+
+- id: az-faq-001
+  question: "Kartımı itirdimsə, necə bağlaya bilərəm?"
+  category: faq
+  lang: az
+  expected_sources: ["faq"]
+
+- id: az-transfers-001
+  question: "Xəzri pul köçürməsi hansı ölkələrə edilə bilər?"
+  category: money-transfers
+  lang: az
+  expected_sources: ["pul-kocurmeleri", "xezri", "xazri"]
+
+- id: az-micro-001
+  question: "Mikro biznes kreditləri hansı şərtlərlə verilir?"
+  category: loans
+  lang: az
+  expected_sources: ["mikro-biznes", "mikrokredit"]
+
+- id: az-virtual-001
+  question: "Virtual kartı necə əldə edə bilərəm?"
+  category: cards
+  lang: az
+  expected_sources: ["virtualcards", "virtual-kart"]
+
+- id: az-generic-001
+  question: "Kapital Bank filiallarının iş saatları necədir?"
+  category: other
+  lang: az
+  expected_sources: ["locations", "filiallar"]
+
+- id: az-unans-001
+  question: "Kapital Bankın daxili skorinq modelindən keçmək üçün minimum bal neçədir?"
+  category: credit-risk
+  lang: az
+  unanswerable: true
+
+- id: az-unans-002
+  question: "Nağd kredit üzrə gizli komissiya dərəcəsi nə qədərdir?"
+  category: loans
+  lang: az
+  unanswerable: true
+
+- id: ru-cards-001
+  question: "Какие премиальные карты есть в Капитал Банке?"
+  category: cards
+  lang: ru
+  expected_sources: ["private.birbank.az", "debet-kartlar", "/ru/cards"]
+
+- id: ru-deposits-001
+  question: "Какие вклады предлагает Капитал Банк?"
+  category: deposits
+  lang: ru
+  expected_sources: ["deposits", "vklady"]
+
+- id: ru-transfers-001
+  question: "Как отправить перевод через Золотая Корона в Капитал Банке?"
+  category: money-transfers
+  lang: ru
+  expected_sources: ["pul-kocurmeleri", "zolotaya-korona"]
+
+- id: ru-faq-001
+  question: "Что делать, если я потерял карту банка?"
+  category: faq
+  lang: ru
+  expected_sources: ["faq"]
+
+- id: ru-loans-001
+  question: "Можно ли получить кредит под залог депозита и на каких условиях?"
+  category: loans
+  lang: ru
+  expected_sources: ["kreditler", "zalog", "deposits"]
+
+- id: ru-insurance-001
+  question: "Какие страховые продукты предлагает Капитал Банк?"
+  category: insurance
+  lang: ru
+  expected_sources: ["insurance", "sigortalar", "straxov"]
+
+- id: ru-unans-001
+  question: "Какая внутренняя комиссия банка за обслуживание скрытых счетов?"
+  category: other
+  lang: ru
+  unanswerable: true
+
+- id: en-unans-002
+  question: "What was Kapital Bank's net profit in the first quarter of 2018?"
+  category: financials
+  lang: en
+  unanswerable: true
+
+- id: en-risk-003
+  question: "What probability of default threshold does Kapital Bank use in its credit risk models?"
+  category: credit-risk
+  lang: en
+  unanswerable: true
+
+- id: en-loans-002
+  question: "Can I get a loan secured by my deposit at Kapital Bank?"
+  category: loans
+  lang: en
+  expected_sources: ["kreditler", "loans", "deposits"]

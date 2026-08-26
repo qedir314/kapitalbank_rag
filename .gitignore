@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# Secrets & local environment
+# ---------------------------------------------------------------------------
+.env
+.env.local
+
+# ---------------------------------------------------------------------------
+# Python
+# ---------------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+venv/
+
+# ---------------------------------------------------------------------------
+# Editors, IDEs & local tool state
+# ---------------------------------------------------------------------------
+.idea/
+.vscode/
+.commandcode/
+
+# ---------------------------------------------------------------------------
+# Data artifacts — large and regenerable, never committed
+# ---------------------------------------------------------------------------
+# Scraped corpus (~1,260 pages JSONL) — rebuild:  python -m scripts.scrape
+data/raw/
+# Chroma vector index (~2,550 passages) — rebuild: python -m scripts.build_index --reset
+data/chroma/
+
+# ---------------------------------------------------------------------------
+# Evaluation outputs
+# ---------------------------------------------------------------------------
+# Ad-hoc eval runs stay untracked; the canonical snapshots referenced by
+# docs/hybrid_retrieval.md are committed so the published numbers are
+# reproducible from the repo.
+eval_results/*
+
+# ---------------------------------------------------------------------------
+# OS junk
+# ---------------------------------------------------------------------------
+Thumbs.db
+.DS_Store

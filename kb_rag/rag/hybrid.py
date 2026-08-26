@@ -1,0 +1,121 @@
+"""Hybrid retrieval helpers: BM25 sparse search, RRF fusion, cross-encoder re-ranking.
+
+Why hybrid: dense embeddings paraphrase well but under-match exact tokens — product
+names ("BirKart"), numbers ("10.9%"), transliterated terms — which is precisely what
+bank queries hinge on. BM25 covers lexical precision, reciprocal rank fusion merges
+the two rankings without score-scale calibration, and a multilingual cross-encoder
+re-scores the fused pool so the final top-k is ordered by actual query-passage fit.
+"""
+
+from __future__ import annotations
+
+import math
+import re
+from dataclasses import replace
+
+from rank_bm25 import BM25Okapi
+
+from kb_rag.ingest.store import RetrievedChunk
+
+_TOKEN_RE = re.compile(r"\w+", re.UNICODE)
+_RRF_K = 60  # standard damping constant
+
+
+def tokenize(text: str) -> list[str]:
+    """Lowercase word tokens; ``\\w`` keeps az/ru letters intact."""
+    return _TOKEN_RE.findall(text.lower())
+
+
+class BM25Index:
+    """In-memory BM25 over the indexed chunks (corpus fits comfortably in RAM)."""
+
+    def __init__(self, chunks: list[RetrievedChunk]):
+        self.chunks = chunks
+        self._bm25 = BM25Okapi([tokenize(c.text) for c in chunks]) if chunks else None
+
+    @classmethod
+    def from_store(cls, store) -> "BM25Index":
+        return cls(store.get_all_chunks())
+
+    def search(
+        self,
+        query: str,
+        limit: int,
+        filter_fn=None,
+    ) -> list[RetrievedChunk]:
+        """Top-``limit`` chunks by BM25, optionally filtered; [] when no term matches."""
+        if self._bm25 is None:
+            return []
+        tokens = tokenize(query)
+        if not tokens:
+            return []
+        token_set = set(tokens)
+        # candidate = any doc containing at least one query token; raw BM25
+        # scores can go negative on skewed corpora (tiny N / ubiquitous terms),
+        # so overlap — not score sign — decides who competes
+        overlapping = [
+            i for i, freqs in enumerate(self._bm25.doc_freqs)
+            if token_set & freqs.keys()
+        ]
+        scores = self._bm25.get_scores(tokens)
+        order = sorted(overlapping, key=lambda i: scores[i], reverse=True)
+
+        out: list[RetrievedChunk] = []
+        for i in order:
+            chunk = self.chunks[i]
+            if filter_fn and not filter_fn(chunk):
+                continue
+            out.append(replace(chunk, score=float(scores[i])))
+            if len(out) >= limit:
+                break
+        return out
+
+
+def reciprocal_rank_fusion(rankings: list[list[RetrievedChunk]]) -> list[RetrievedChunk]:
+    """Fuse ranked lists by RRF: score(d) = sum(1 / (k + rank_i(d))).
+
+    Rank-based, so cosine similarities and BM25 scores never need calibrating
+    against each other.
+    """
+    fused: dict[str, float] = {}
+    first_seen: dict[str, RetrievedChunk] = {}
+    for ranking in rankings:
+        for pos, chunk in enumerate(ranking):
+            key = chunk.url + "\x00" + chunk.text[:128]
+            fused[key] = fused.get(key, 0.0) + 1.0 / (_RRF_K + pos + 1)
+            first_seen.setdefault(key, chunk)
+    ordered = sorted(fused.items(), key=lambda kv: kv[1], reverse=True)
+    return [replace(first_seen[key], score=score) for key, score in ordered]
+
+
+class CrossEncoderReranker:
+    """Multilingual cross-encoder scoring of (query, passage) pairs."""
+
+    def __init__(self, model_name: str, max_length: int = 448):
+        self.model_name = model_name
+        self.max_length = max_length
+        self._model = None
+
+    @property
+    def model(self):
+        if self._model is None:  # lazy: heavy download/load on first query only
+            from sentence_transformers import CrossEncoder
+
+            self._model = CrossEncoder(self.model_name, max_length=self.max_length)
+        return self._model
+
+    def rerank(self, query: str, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:
+        if not chunks:
+            return []
+        pairs = [(query, c.text) for c in chunks]
+        raw = self.model.predict(pairs)
+        scores = [_to_probability(float(s)) for s in raw]
+        rescored = [replace(c, score=s) for c, s in zip(chunks, scores)]
+        return sorted(rescored, key=lambda c: c.score, reverse=True)
+
+
+def _to_probability(score: float) -> float:
+    """Normalize model output to [0, 1]; some CEs emit logits, others probabilities."""
+    if 0.0 <= score <= 1.0:
+        return score
+    return 1.0 / (1.0 + math.exp(-score))

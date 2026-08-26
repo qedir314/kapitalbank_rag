@@ -1,0 +1,54 @@
+scraper:
+  sitemap_url:
+    - https://www.kapitalbank.az/sitemap.xml   # legacy site (mostly 301s to birbank)
+    - https://birbank.az/sitemap.xml           # consolidated product/service pages
+    - https://birbank.business/sitemap.xml     # SME / business banking
+  user_agent: "KapitalRAG-Bot/0.1 (educational RAG project)"
+  request_delay_sec: 0.5
+  timeout_sec: 20
+  retries: 2
+  min_text_chars: 300        # skip near-empty / JS-shell pages
+  # application widgets / order forms — interactive, no knowledge content;
+  # */success pages are post-submission screens
+  exclude_url_patterns: ["ccl.birbank.az", "/success"]
+
+embedding:
+  # multilingual e5 covers az/ru/en; swap for BAAI/bge-m3 if retrieval quality demands it
+  model_name: intfloat/multilingual-e5-base
+  batch_size: 64
+  max_seq_tokens: 512        # e5 hard cap
+
+chunking:
+  target_chars: 800          # sliding-window size per section
+  overlap_chars: 120
+  min_chars: 200             # drop tiny chunks before embedding
+
+vector_store:
+  persist_dir: data/chroma
+  collection: kapital_kb
+  distance: cosine
+
+retrieval:
+  top_k: 6
+  # marketing/news pages dominate the corpus and pollute product queries;
+  # excluded unless the caller explicitly filters on sections
+  exclude_sections: ["news"]
+  # hybrid search: dense vectors catch paraphrases, BM25 catches exact tokens
+  # (product names, rates); RRF fuses the rankings, then a multilingual
+  # cross-encoder re-scores the fused pool. First query downloads ~2 GB;
+  # CPU cost per query is roughly proportional to rerank_candidates × length²
+  candidate_pool: 60
+  enable_bm25: true
+  rerank_model: BAAI/bge-reranker-v2-m3
+  rerank_candidates: 10
+  rerank_max_length: 320
+
+llm:
+  base_url: https://api.deepseek.com
+  model: deepseek-chat
+  temperature: 0.2
+  max_tokens: 1024
+  judge_model: deepseek-chat # LLM-as-judge; swappable to avoid self-judge bias
+
+app:
+  history_turns: 6           # conversation turns sent back as context
