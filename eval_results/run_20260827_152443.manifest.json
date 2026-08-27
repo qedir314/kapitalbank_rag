@@ -1,0 +1,83 @@
+{
+  "run_csv": "run_20260827_152443.csv",
+  "mode": "full",
+  "generated_at": "2026-08-27T11:24:43+00:00",
+  "tag": "phase3-variance-74q-seed3",
+  "git": {
+    "sha": "83765329efecdbd35198346513f24c9c432e59ff",
+    "branch": "main",
+    "dirty": true
+  },
+  "kb_config": "config.yaml",
+  "top_k": 6,
+  "seed": 3,
+  "judge_model": "deepseek-chat",
+  "dataset": {
+    "path": "data\\golden\\qa.yaml",
+    "sha256": "e44b0324d2e8ea5e258665019a2ec4579a8a820eafa4e49a7dcb9f3e9d1b2222",
+    "n_items": 74
+  },
+  "n_errors": 0,
+  "n_judge_errors": 0,
+  "environment": {
+    "python": "3.14.6",
+    "platform": "Windows-11-10.0.26200-SP0"
+  },
+  "settings": {
+    "scraper": {
+      "sitemap_url": [
+        "https://www.kapitalbank.az/sitemap.xml",
+        "https://birbank.az/sitemap.xml",
+        "https://birbank.business/sitemap.xml"
+      ],
+      "user_agent": "KapitalRAG-Bot/0.1 (educational RAG project)",
+      "request_delay_sec": 0.5,
+      "timeout_sec": 20,
+      "retries": 2,
+      "min_text_chars": 300,
+      "exclude_url_patterns": [
+        "ccl.birbank.az",
+        "/success"
+      ]
+    },
+    "embedding": {
+      "model_name": "BAAI/bge-m3",
+      "batch_size": 32,
+      "max_seq_tokens": 1024
+    },
+    "chunking": {
+      "target_chars": 800,
+      "overlap_chars": 120,
+      "min_chars": 200
+    },
+    "vector_store": {
+      "persist_dir": "data/chroma",
+      "collection": "kapital_kb",
+      "distance": "cosine"
+    },
+    "retrieval": {
+      "top_k": 6,
+      "exclude_sections": [
+        "news"
+      ],
+      "candidate_pool": 60,
+      "enable_bm25": true,
+      "rerank_model": "BAAI/bge-reranker-v2-m3",
+      "rerank_candidates": 20,
+      "rerank_max_length": 320,
+      "query_expansion": false,
+      "morph_tokens": false
+    },
+    "llm": {
+      "base_url": "https://api.deepseek.com",
+      "model": "deepseek-chat",
+      "temperature": 0.2,
+      "max_tokens": 1024,
+      "judge_model": "deepseek-chat",
+      "seed": 3
+    },
+    "app": {
+      "history_turns": 6
+    }
+  }
+}

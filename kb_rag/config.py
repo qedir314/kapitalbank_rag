@@ -69,6 +69,10 @@ class RetrievalConfig(BaseModel):
     # --- morphology-aware BM25 tokens (plan 2.3): additive Cyrillic→Latin
     # transliteration + one-step Azerbaijani suffix stripping. BM25-only.
     morph_tokens: bool = False
+    # --- conversational query condensing (plan 4.4): fold follow-up + chat
+    # history into a standalone retrieval query via one LLM call. Only fires
+    # when there is history — single-turn queries pay nothing.
+    query_condensing: bool = False
 
 
 class LLMConfig(BaseModel):
@@ -84,6 +88,9 @@ class LLMConfig(BaseModel):
 
 class ChatConfig(BaseModel):
     history_turns: int = 6
+    # plan 4.2: at answer time, re-check every [n] citation marker against the
+    # passage it cites (same checker as the eval) and surface unsupported ones
+    verify_citations: bool = True
 
 
 class Settings(BaseModel):

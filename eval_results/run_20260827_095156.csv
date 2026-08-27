@@ -1,0 +1,205 @@
+id,category,lang,unanswerable,hit,reciprocal_rank,first_hit_rank,n_sources_returned,refused,answer,refusal_correct,faithfulness,correctness,judge_rationale
+en-cards-001,cards,en,False,True,1.0,1.0,12,False,"Based on the provided context, the Birbank Miles debit card allows you to make transactions and redeem the miles you earn for any airline ticket [1][2][3].
+
+Its main features are:
+- **Earn miles:** You earn miles by making transactions with the card [1][2][3].
+- **Redeem miles:** You can exchange your accumulated miles for airline tickets with any airline [1][2][3].",,5.0,5.0,"The answer accurately reflects the context, which states that the Birbank Miles debit card allows transactions and redemption of earned miles for any airline ticket, with no unsupported details."
+en-cards-002,cards,en,False,False,0.0,,12,False,"Based on the provided context, Kapital Bank offers the **Birbank Umico Premium Installment Card** (also known as Birbank Umico Premium Taksit Kartı) [2][3][4].
+
+Key features of this premium card:
+- It is a premium installment card jointly offered by Kapital Bank and Umico [2][3][4].
+- It allows you to earn cashback on daily purchases [2][3][4].
+- It can be obtained by individuals who receive salary/pension from Kapital Bank or other banks [2][3][4].
+- It is free of charge [2][3][4].
+
+Conditions:
+- Age limit: Min. 18 years, max. 67 years [2][3][4].
+- Minimum 3 months of work experience at the last place of employment (not required for pensioners) [2][3][4].
+
+Advantages:
+- Cashback on payments at UmicoBank [2][3][4].
+- Earn up to 0.5% on utility payments and mobile top-ups [2][3][4].
+- You can cash out up to 100% of your Birbank card limit [2][3][4].",,5.0,5.0,"The answer accurately identifies the Birbank Umico Premium Installment Card as the premium card offered by Kapital Bank, and all details are directly supported by the cited context passages."
+en-deposits-001,deposits,en,False,False,0.0,,12,False,"Based on the provided context, I can only confirm that Kapital Bank/Birbank offers a **Capital Deposit** product, which can be combined with Personal Accident Insurance [1]. Additionally, deposits can be used as collateral for a **deposit-secured loan** [2].
+
+The context does not provide a full list of all deposit products, their interest rates, or terms. For complete information, please check kapitalbank.az or call 1911.",,5.0,4.0,"The answer accurately reflects the context by mentioning the Capital Deposit and deposit-secured loan, and correctly notes the lack of a full product list, though it could have more explicitly stated that the context does not enumerate all deposit products."
+en-faq-001,faq,en,False,True,0.3333333333333333,3.0,12,True,"Based on the provided context, I cannot find specific instructions on how to block a card if it is lost or stolen. The context mentions card replacement in cases of loss or physical damage [1][4], and provides general safety rules such as keeping your PIN confidential and not lending your card to third parties [3], but it does not describe the process for blocking a card.
+
+For accurate instructions on blocking your card, I recommend checking the official Kapital Bank website (kapitalbank.az) or contacting their customer service at 1911.",,5.0,5.0,"The answer accurately states that the context lacks blocking instructions, correctly references the available information, and appropriately directs the user to official sources without adding unsupported details."
+en-transfers-001,money-transfers,en,False,True,1.0,1.0,12,False,"You can send money via Western Union through Kapital Bank/Birbank by visiting a Birbank branch and contacting a service representative [2][6]. Here is the procedure:
+
+1. **Visit a Birbank branch** – You do not need to open a bank account at Kapital Bank/Birbank or any other bank to use Western Union [1][2].
+2. **Fill out the form** – You will be asked to specify the transfer amount, currency, and destination country [2][6].
+3. **Provide identification** – Submit the completed form along with your valid identification document [1][2].
+4. **Complete the transaction** – The operation is finalized after submitting the documents [2].
+
+**Key details:**
+- **Currency**: Transfers are primarily made in US dollars (USD); other currencies may be available in certain cases, but USD is the standard [1][6].
+- **Speed**: Transfers are usually completed within 5 minutes, and the recipient can collect the funds within that time [2].
+- **Commission**: The fee depends on the amount, destination country, and currency, and is disclosed before the transaction [1][6].",,5.0,5.0,"The answer accurately reflects the context passages, correctly describing the branch visit procedure, no-account requirement, form details, identification, USD preference, 5-minute speed, and commission disclosure, with proper citations."
+en-loans-001,loans,en,False,True,1.0,1.0,12,False,"Based on the provided information, Kapital Bank offers the following loan products:
+
+- **Deposit-secured loan (Əmanət təminatlı kredit):** You can obtain a loan of up to 90% of your deposit amount, with a minimum of 500 AZN/USD [1]. No income statement, employment verification, or proof of residence is required for this loan [4].
+- **Auto loan (Avto kredit):** Available to help you purchase your desired car [1].
+- **Advance loan (Avans):** Available for urgent cash needs [1].
+
+Additionally, customers who have obtained a personal loan or installment card through Kapital Bank/Birbank are eligible for unemployment insurance, which can cover existing loan obligations if you lose your job [2].",,5.0,5.0,"The answer accurately lists the loan products (deposit-secured, auto, advance) directly from context [1] and [4], and correctly mentions the unemployment insurance eligibility from [2], with no unsupported claims."
+en-howto-001,how-to,en,False,True,0.3333333333333333,3.0,12,False,"Based on the provided context, here is how you can order a card online:
+
+- You can order cards online through Kapital Bank's online services [2].
+- To use the service, you need to log in to your Birbank account via the Birbank mobile application or the Kapital Bank website [2].
+- The online queue service also allows you to make card orders without waiting in line at the bank [4]. You can select the type of bank operation (such as card order), choose a suitable branch, date, and time to complete the reservation [4].
+
+The context does not specify the exact steps or any fees for ordering a debit card online. For detailed instructions, please check kapitalbank.az or call 1911.",,4.0,4.0,"The answer accurately reflects the context about ordering cards online via Birbank and the online queue service, but it adds a phone number (1911) not present in the context, which is a minor unsupported detail."
+en-insurance-001,insurance,en,False,True,1.0,1.0,12,False,"Based on the provided context, Kapital Bank offers the following insurance products:
+
+- **Unemployment Insurance**: Covers your existing loan obligations if you lose your job due to company liquidation, downsizing, or staff reduction. Eligibility is limited to customers who have obtained a personal loan or installment card through Kapital Bank/Birbank [1].
+- **Personal Accident Insurance on Capital Deposit**: Transforms your deposit into a secure financial tool, protecting you against life's unforeseen risks [2].
+- **Debit Card Physical Damage Insurance (Card Damage)**: Protects your plastic debit cards. If the card is physically damaged or lost, it will be replaced free of charge by Kapital Bank upon the customer's request [3].
+- **Optimal Casco Insurance**: Vehicle insurance with an insurance premium of 250 AZN for unofficial service and 300 AZN for official service, with a 100 AZN unconditional deductible [4].",,5.0,5.0,"The answer accurately lists all insurance products mentioned in the context with correct details and citations, fully addressing the question."
+en-birbank-001,birbank,en,False,True,1.0,1.0,12,False,"Based on the provided context, Birbank is the primary symbol of the services provided by Kapital Bank to its customers. Since 2025, the bank has been providing services under the Birbank brand, while Kapital Bank continues as a financial institution and corporate brand [1][2].",,5.0,5.0,"The answer accurately reflects the context, correctly identifying Birbank as the primary service brand of Kapital Bank since 2025, with proper citations."
+az-cards-001,cards,az,False,False,0.0,,12,False,"Kontekstdə Kapital Bankın taksit kartlarına aşağıdakılar aid edilir:
+
+- **BirKart Red** (taksit kartı) [1]
+- **BirKart Black** (taksit kartı) [1]
+- **BirKart Umico** (taksit kartı) [1]
+- **BirKart Miles** (taksit kartı) [1]
+- **Birbank Umico Premium Taksit Kartı** [2]
+
+Qeyd: Birbank Umico Premium Taksit Kartı Kapital Bank və Umico-nun birgə təqdim etdiyi premium taksit kartıdır və gündəlik alış-verişlərdən keşbek qazandırır [2].",,5.0,5.0,The answer lists exactly the installment cards mentioned in the context passages and correctly cites the sources for each card.
+az-cards-002,cards,az,False,True,1.0,1.0,12,True,"Mən yalnız təqdim olunan kontekstdəki məlumatlara əsasən cavab verə bilərəm. Kontekstdə **Birbank Cashback debet kartı** haqqında xüsusi məlumat yoxdur. [1] bəndində yalnız Birbank Miles, Birbank Visa Infinite Cashback, Visa Infinite Miles, Mastercard World Elite Miles, TələbəPlus və TəhsilPlus kimi debet kartları sadalanır, lakin Birbank Cashback debet kartının imkanları haqqında heç bir detal verilmir.
+
+Dəqiq məlumat üçün rəsmi **kapitalbank.az** saytını yoxlamağı və ya **1911** nömrəli xidmət xəttinə zəng etməyi tövsiyə edirəm.",,5.0,5.0,"The answer correctly states that the context lacks specific information about the Birbank Cashback debit card and appropriately avoids inventing details, while providing a helpful suggestion for further inquiry."
+az-deposits-001,deposits,az,False,True,1.0,1.0,12,False,"Kapital Bankın depozit qutuları (seyflər) ilə bağlı şərtlər aşağıdakılardır [1]:
+
+- **Müddət:** Əşyalarınızı 3 ay və daha çox müddətə saxlaya bilərsiniz [1].
+- **Məqsəd:** Depozit qutuları zərgərlik məmulatlarının təhlükəsiz saxlanması üçün optimal həll yoludur [1].
+- **Qiymət:** Aylıq xidmət haqqı qutunun ölçüsündən asılı olaraq dəyişir [1]:
+
+| Ölçü (hündürlük - en - uzunluq) | Aylıq xidmət haqqı |
+|---|---|
+| 10sm x 40sm x 45sm | 30 AZN |
+| 15sm x 32sm x 43sm | 40 AZN |
+| 15sm x 40sm x 45sm | 40 AZN |
+| 17,5sm x 32sm x 43sm | 45 AZN |
+| 20sm x 40sm x 45sm | 45 AZN |
+| 25sm x 40sm x 45sm | 55 AZN |
+| 30sm x 32sm x 43sm | 60 AZN |
+| 40sm x 40sm x 45sm | 60 AZN |
+| 60sm x 40sm x 45sm | 75 AZN |",,5.0,5.0,"The answer fully and accurately reflects the context passage about deposit boxes, including all sizes, prices, duration, and purpose, with proper citation."
+az-loans-001,loans,az,False,False,0.0,11.0,12,False,Nağd pul krediti üçün maksimal məbləğ **50 000 ₼-dək**dir [6].,,5.0,5.0,"The answer directly states the maximum amount of 50,000 AZN, which is explicitly supported by context passage [6], and correctly cites the source."
+az-faq-001,faq,az,False,False,0.0,,12,False,"Kartınızı itirdiyiniz halda onu bloklamaq üçün aşağıdakı üsullardan istifadə edə bilərsiniz:
+
+- **Etibarnamə funksiyası ilə:** Birbank tətbiqində etibar etdiyiniz şəxsi təyin edərək, həmin şəxs sizin yerinə filialda **kartın bloklanması və blokdan çıxarılması** əməliyyatını həyata keçirə bilər [2].
+- **Filialda:** Şəxsiyyət vəsiqəsi təqdim etməklə və etibarnamənin aktiv olduğu yoxlanılaraq, yalnız sizin icazə verdiyiniz əməliyyatlar (o cümlədən kartın bloklanması) icra olunur [2].
+
+Qeyd: Kontekstdə kartın birbaşa özünüz tərəfindən necə bloklanması (məsələn, mobil tətbiq və ya çağrı mərkəzi vasitəsilə) ilə bağlı ətraflı məlumat verilməyib. Daha dəqiq addımlar üçün **kapitalbank.az** saytını yoxlamağı və ya **1911** nömrəsinə zəng etməyi tövsiyə edirəm.",,3.0,3.0,"The answer correctly uses the etibarnamə context for blocking a lost card, but adds unsupported recommendations (kapitalbank.az, 1911) not present in the context, and the question asks about closing the card, not just blocking it."
+az-transfers-001,money-transfers,az,False,True,1.0,1.0,12,True,"Məndə olan məlumatlarda Xəzri Sürətli pul köçürmə sistemi vasitəsilə hansı ölkələrə köçürmə edilə biləcəyi barədə konkret məlumat yoxdur [1]. Kontekstdə yalnız Xəzri Sürətli pul köçürmə sisteminin mövcud olduğu qeyd olunur, lakin əhatə etdiyi ölkələrin siyahısı göstərilməyib [1].
+
+Dəqiq məlumat üçün kapitalbank.az saytını yoxlamağı və ya 1911-ə zəng etməyi tövsiyə edirəm.",,5.0,5.0,"The answer correctly states that the context does not specify which countries Xəzri transfers can be made to, and appropriately directs the user to official sources."
+az-micro-001,loans,az,False,True,1.0,1.0,12,False,"Mikro biznes krediti aşağıdakı əsas şərtlərlə verilir:
+
+- **Yaş həddi:** 20-dən yuxarı [1]
+- **İş təcrübəsi:** Sahibkarlıq və ya peşə fəaliyyəti üzrə minimum 12 ay [1]
+- **VÖEN:** Qeydiyyatdan keçmiş VÖEN tələb olunur [1]
+- **Kredit tarixçəsi:** Müraciətçinin kredit tarixçəsi qiymətləndirilir [1]
+- **Təminat:** Kredit girovsuz və zaminsiz rəsmiləşdirilə bilər; girov və ya zamin təqdim etdikdə faiz dərəcəsi daha aşağı təyin oluna bilər [1][2]
+
+**Mikro Kredit məhsulu üzrə əsas parametrlər:**
+- **Məbləğ:** 1 000 AZN-dən 100 000 AZN-dək [2]
+- **Müddət:** 6 aydan 36 ayadək [2]
+- **İllik faiz:** 16%-dən başlayır (kampaniya çərçivəsində 15%-dən də başlaya bilər) [2][5]
+- **Kredit komissiyası:** 0-2% [5]
+- **Güzəşt müddəti:** 9 ayadək (kampaniya şərtlərinə əsasən) [5]
+
+Qeyd: Konkret məbləğ, müddət və yekun faiz dərəcəsi biznesin dövriyyəsi, ödəmə qabiliyyəti, təminatın olub-olmaması və kredit tarixçəsi əsasında fərdi qaydada müəyyənləşdirilir [2].",,5.0,5.0,"The answer accurately reflects all conditions and parameters from the provided context passages, with proper citations and no unsupported claims."
+az-virtual-001,cards,az,False,False,0.0,,12,False,"Mövcud kontekstdə virtual kartın (Visa Digital) necə əldə ediləcəyi ilə bağlı addım-addım təlimat verilməyib. Kontekstdə yalnız qeyd olunur ki, Visa Digital kartı Birbank Biznes-dən sifariş edilə bilər, rəqəmsal kartdır və sifarişi ödənişsizdir [1].
+
+Ətraflı sifariş proseduru üçün rəsmi veb-saytı (birbank.business) ziyarət etməyi və ya 1911 nömrəli xəttə müraciət etməyi tövsiyə edirəm.",,5.0,4.0,"The answer accurately states that the context lacks step-by-step instructions and only mentions that Visa Digital can be ordered from Birbank Biznes free of charge, but it adds a recommendation to contact 1911 which is not in the context."
+az-generic-001,other,az,False,False,0.0,,12,False,"Mən təqdim olunan kontekstdə Kapital Bank filiallarının ümumi iş saatları haqqında məlumat tapa bilmirəm. Kontekstdə yalnız Birbank Private filialının iş saatları qeyd olunub: Bazar ertəsi – Cümə, saat 9:00 – 18:00 [4].
+
+Ümumi filial iş saatları haqqında dəqiq məlumat üçün rəsmi veb saytı (kapitalbank.az) yoxlamağı və ya 1911 nömrəli qaynar xəttə zəng etməyi tövsiyə edirəm.",,5.0,5.0,"The answer accurately states that general branch hours are not in the context, correctly cites the only available hours for Birbank Private, and appropriately advises checking official sources."
+az-unans-001,credit-risk,az,True,False,0.0,,12,True,"Mən bu suala dəqiq cavab verə bilmirəm, çünki təqdim olunan kontekstdə Kapital Bankın daxili skorinq modeli və ya minimum bal tələbi ilə bağlı heç bir məlumat yoxdur [1][2][3][4][5][6].
+
+Kontekstdə yalnız Birbank taksit kartları üzrə komissiyalar, faiz dərəcələri və köçürmə şərtləri haqqında məlumat var.
+
+Dəqiq məlumat üçün rəsmi **kapitalbank.az** saytını yoxlamağı və ya **1911** nömrəli qaynar xəttə zəng etməyi tövsiyə edirəm.",True,,,
+az-unans-002,loans,az,True,False,0.0,,12,True,"Mən yalnız Kapital Bank / Birbank məhsul və xidmətləri üzrə kömək edə bilərəm. Təqdim olunan kontekstdə **nağd kredit** (cash loan) üzrə komissiya dərəcəsi haqqında məlumat yoxdur — burada yalnız **Birbank taksit kartları** üzrə nağdlaşdırma və köçürmə komissiyaları göstərilib [1][2][3][4][5][6].
+
+Nağd kredit üzrə dəqiq şərtləri öyrənmək üçün rəsmi **kapitalbank.az** saytını yoxlamağı və ya **1911** nömrəli xidmət mərkəzinə zəng etməyi tövsiyə edirəm.",True,,,
+ru-cards-001,cards,ru,False,True,0.2,5.0,12,False,"На основе предоставленной информации, в Капитал Банке есть следующая премиальная карта:
+
+- **Birbank Umico Premium Рассрочка Карта** — это премиальная карта рассрочки, совместно предлагаемая Kapital Bank и Umico [2]. Она позволяет получать кешбэк при ежедневных покупках [2].
+
+**Основные условия и преимущества карты [2]:**
+- **Кешбэк:** за платежи в UmicoBank, а также при оплате коммунальных услуг и пополнении баланса мобильного телефона — до 0.5%.
+- **Обналичивание:** можно обналичить до 100% лимита карты.
+- **Стоимость:** карта бесплатна.
+- **Возраст:** от 18 до 67 лет.
+- **Стаж работы:** минимум 3 месяца на последнем месте работы (требование не применяется к пенсионерам).
+- **Кто может получить:** лица, получающие зарплату/пенсию в Kapital Bank или других банках.
+
+Других премиальных карт в предоставленном контексте не упоминается.",,5.0,5.0,The answer accurately identifies the only premium card mentioned in the context and correctly summarizes its features without adding unsupported details.
+ru-deposits-001,deposits,ru,False,True,0.2,5.0,12,False,"На основе предоставленной информации я могу рассказать о **бессрочном депозите** Kapital Bank:
+
+**Бессрочный депозит** [3]:
+- **Минимальная сумма:** 100 AZN/USD [3]
+- **Валюта:** AZN и USD (проценты различаются в зависимости от валюты) [3]
+- **Срок:** минимальный срок — 12 месяцев, автоматически продлевается по истечении срока [3]
+- **Условия продления:** если после окончания срока на следующий день вкладчик не требует возврата и действуют те же тарифы, депозит продлевается на тех же условиях, в противном случае — на условиях, определённых Банком [3]
+- **Выплата процентов:** при снятии депозита [3]
+- **Особенности:** можно легко увеличить или уменьшить сумму депозита; снимать деньги в любое время [3]
+
+Также в контексте упоминается **вклад Kapital** в связи со страховкой от несчастных случаев [1]:
+- **Валюта:** AZN [1]
+- **Минимальная сумма:** 5000 AZN [1]
+
+Обратите внимание: в предоставленных материалах нет полного перечня всех видов вкладов (например, срочных депозитов с фиксированной ставкой). Для получения полной информации о всех продуктах рекомендую проверить сайт birbank.az или kapitalbank.az, либо позвонить по номеру 1911.",,5.0,4.0,"The answer accurately reports only the deposit details found in the context, but it does not fully answer the question about all deposit types offered by Kapital Bank, as the context lacks a complete list."
+ru-transfers-001,money-transfers,ru,False,False,0.0,,12,True,"Извините, я не могу ответить на этот вопрос. В предоставленных материалах нет информации об услуге «Золотая Корона» (Golden Crown) в Капитал Банке.
+
+Я могу помочь только с теми продуктами и услугами Kapital Bank / Birbank, которые описаны в контексте: Cash by Code, Card to Card, Cash to Card, SMS-банкинг и т.п.
+
+Для получения информации о «Золотой Короне» рекомендую проверить официальный сайт kapitalbank.az или позвонить на горячую линию 1911.",,5.0,5.0,"The answer correctly states that the context lacks information about Golden Crown and appropriately declines to answer, fully supported by the provided passages."
+ru-faq-001,faq,ru,False,False,0.0,,12,False,"Если вы потеряли карту Kapital Bank / Birbank, в зависимости от типа карты действуют следующие условия страхования от физического повреждения или утраты:
+
+- **Кредитная карта**: в случае физического повреждения или утраты карта по вашему желанию **бесплатно заменяется банком на новую**. В период действия страхового договора карта может быть перевыпущена **не более 3 раз**. Страховая премия составляет **1 AZN в год** (удерживается автоматически) [1].
+- **Дебетовая карта**: при физическом повреждении или утрате карта **бесплатно заменяется банком на новую**. В период действия страхового сертификата карты со сроком использования **1 год** могут быть заменены бесплатно **один раз**, а карты со сроком использования **3 года** — **до трёх раз** [2].
+
+**Важно**: страхование покрывает только физическое повреждение или утрату карты. Финансовые потери, вызванные физической кражей или утратой карты, страхованию **не подлежат** [4].
+
+Для замены карты и уточнения деталей рекомендую обратиться в банк по телефону **1911** или проверить условия на официальном сайте **kapitalbank.az / birbank.az**.",,4.0,4.0,"The answer accurately reflects the context about card replacement and insurance conditions, but adds unsupported contact details (phone 1911) and website references not present in the provided passages."
+ru-loans-001,loans,ru,False,True,1.0,1.0,12,False,"Да, можно получить кредит под залог депозита. Условия следующие [1]:
+
+- **По депозитам в национальной валюте (AZN):** годовая процентная ставка = процентная ставка по вкладу + **5%** [1].
+- **По депозитам в иностранной валюте:** годовая процентная ставка = процентная ставка по вкладу + **4%** [1].
+
+Более подробная информация о других условиях (сумма, срок, требования) в предоставленном контексте отсутствует. Для уточнения деталей рекомендую обратиться на kapitalbank.az или по телефону 1911.",,5.0,5.0,"Ответ полностью соответствует контексту, точно передаёт условия по ставкам и корректно указывает на отсутствие дополнительной информации."
+ru-insurance-001,insurance,ru,False,True,1.0,1.0,12,False,"На основе предоставленной информации, Капитал Банк (Birbank) предлагает следующие страховые продукты:
+
+- **Индивидуальная страховка от несчастных случаев** [1][2]
+  - Покрывает риски смерти, а также инвалидности I, II и III степени вследствие несчастного случая или болезни [1].
+  - Доступна владельцам вкладов Kapital (сумма вклада: мин. 5000 AZN, валюта — AZN) [1].
+  - Выгодоприобретатель — АО «Kapital Bank» [1].
+  - Страховой сертификат активируется в день размещения депозита и действует в течение одного года [1].
+
+- **Страхование от безработицы** [3]
+  - Доступно владельцам потребительских кредитов и кредитных карт [3].
+  - Покрывает задолженность перед Kapital Bank в случае потери работы по указанным причинам [3].
+  - Страховая компания выплачивает до 200 AZN в месяц (максимум) сроком до 5 месяцев для погашения обязательств по кредитной карте [3].
+
+Если вам нужна более подробная информация о других продуктах, рекомендую проверить kapitalbank.az или позвонить на 1911.",,5.0,5.0,"The answer accurately lists the two insurance products from the context, correctly cites sources, and includes all relevant details without adding unsupported information."
+ru-unans-001,other,ru,True,False,0.0,,12,True,"Извините, в предоставленных материалах нет информации о комиссиях за обслуживание скрытых счетов. В контексте упоминаются только комиссии за переводы, снятие наличных и операции по кредитной линии карт Birbank [2][3][4][5][6].
+
+Рекомендую уточнить этот вопрос на официальном сайте kapitalbank.az или по телефону 1911.",True,,,
+en-unans-002,financials,en,True,False,0.0,,12,True,"I cannot answer this question based on the provided context. The context passages contain general information about Kapital Bank (requisites, management, and report types), but they do not include any financial figures, such as net profit for the first quarter of 2018 [1][2][3][4][5][6].
+
+For accurate financial data, please check the official reports on kapitalbank.az or contact the bank's call center at 1911.",True,,,
+en-risk-003,credit-risk,en,True,False,0.0,,12,True,"I cannot answer this question based on the provided context. The passages do not contain any information about Kapital Bank's credit risk models or probability of default thresholds [1][2][3][4][5][6].
+
+For details on credit risk modeling, I recommend checking the official Kapital Bank website (kapitalbank.az) or contacting the bank directly at 1911.",True,,,
+en-loans-002,loans,en,False,True,1.0,1.0,12,False,"Yes, you can get a loan secured by your deposit at Kapital Bank/Birbank. This is a low-interest loan option that is accessible and convenient [1]. 
+
+Key points about this loan:
+
+- **No income statement, employment verification, or proof of residence is required** — you can obtain the loan quickly and easily based solely on your deposit account at Kapital Bank/Birbank [1].
+- It is available to both local and foreign customers [1].",,5.0,5.0,"The answer accurately reflects the context, directly answering the question with correct details and proper citation."

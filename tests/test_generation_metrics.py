@@ -16,6 +16,18 @@ def test_refusal_markers_multilingual():
     assert looks_like_refusal(None)
 
 
+def test_offdomain_gate_paraphrases_detected():
+    """The Phase 4 A/B caught real off-domain refusals scoring as answered
+    because the template was paraphrased differently — the marker set must
+    cover the whole "I only help with bank topics" family, not one phrasing."""
+    assert looks_like_refusal(
+        "I can only help with questions about Kapital Bank / Birbank products. "
+        "Solving math equations is outside my scope.")
+    assert looks_like_refusal(
+        "Я могу помочь только с вопросами о продуктах Kapital Bank. Написание "
+        "кода на Python не относится к этой теме, не могу выполнить этот запрос.")
+
+
 def test_parse_judge_json_variants():
     assert parse_judge_json('{"faithfulness": 5, "correctness": 4, "rationale": "ok"}')["correctness"] == 4
     fenced = '```json\n{"faithfulness": 3, "correctness": 3, "rationale": "meh"}\n```'

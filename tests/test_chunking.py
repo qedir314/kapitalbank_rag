@@ -63,6 +63,19 @@ def test_tiny_chunks_are_dropped():
     assert build_chunks(page, CFG) == []
 
 
+def test_crawled_at_travels_into_every_chunk(tmp_path):
+    """Plan 4.3: freshness metadata must survive chunking (and stay a string
+    when the page predates the field, since Chroma rejects non-scalars)."""
+    page = {**PAGE, "crawled_at": "2026-08-26T09:22:33+00:00"}
+    chunks = build_chunks(page, CFG)
+    assert all(c.metadata["crawled_at"] == "2026-08-26T09:22:33+00:00" for c in chunks)
+
+    legacy = {k: v for k, v in PAGE.items() if k != "crawled_at"}
+    legacy["crawled_at"] = None            # mid-rollout records without a date
+    chunks = build_chunks(legacy, CFG)
+    assert all(c.metadata["crawled_at"] == "" for c in chunks)
+
+
 def test_derive_section_handles_lang_prefixes_and_unknown():
     assert derive_section("https://kapitalbank.az/en/loans/cash") == "loans"
     assert derive_section("https://kapitalbank.az/ru/deposits/x") == "deposits"

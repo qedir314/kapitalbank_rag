@@ -43,6 +43,8 @@ REFUSAL_MARKERS = (
     "not mentioned in", "not included in", "does not contain", "don't know",
     "i don't know", "isn't mentioned", "not specified",
     "only help with kapital bank", "only answer questions about kapital bank",
+    "only help with questions about",  # "I can only help with questions about …"
+    "outside my scope", "not related to kapital",
     "general-purpose chatbot", "general knowledge",
     # azerbaijani
     "məlumat yoxdur", "məlumat tapılmadı", "məlumatım yoxdur",
@@ -56,8 +58,11 @@ REFUSAL_MARKERS = (
     "не могу ответить", "не могу найти", "не удалось найти",
     "не найдено", "не содержится", "нет данных",
     "невозможно получить информацию", "невозможно ответить",
-    "только вопросы о капитал банк", "можу помочь только",
-    "отсутствует в предоставленной информации", "відповісти",
+    # the off-domain-gate template family (the old "можу…" entry was a typo
+    # that could never match a correct sentence — caught by the Phase 4 A/B)
+    "могу помочь только", "не могу выполни", "не относится к этой теме",
+    "только вопросы о капитал банк",
+    "отсутствует в предоставленной информации",
 )
 
 

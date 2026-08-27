@@ -156,6 +156,10 @@ def build_chunks(page: dict, cfg: ChunkingConfig) -> list[Chunk]:
                         "title": page_title,
                         "section_path": breadcrumb[:300],
                         "section": section,
+                        # plan 4.3: freshness travels with the chunk — bank
+                        # rates change, and "content as of …" is only honest
+                        # if the crawl date survives into retrieval results
+                        "crawled_at": str(page.get("crawled_at", "") or ""),
                     },
                 )
             )

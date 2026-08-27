@@ -43,12 +43,21 @@ retrieval:
   rerank_candidates: 20
   rerank_max_length: 320
   # LLM query expansion (plan 2.2): rewrite the question into az/en/ru,
-  # retrieve per variant, fuse by RRF. One extra DeepSeek call per query —
-  # flip to true only while it measurably wins (see docs/hybrid_retrieval.md)
+  # retrieve per variant, fuse by RRF. Re-measured OFF at 90.6% vs 92.2%
+  # control on the corrected 76-Q instrument (+ reproduced refusal damage) —
+  # rejected; see docs/hybrid_retrieval.md errata
   query_expansion: false
   # additive Cyrillic→Latin transliteration + one-step Azerbaijani suffix
-  # stripping for BM25 tokens (plan 2.3) — same evidence rule as above
+  # stripping for BM25 tokens (plan 2.3) — re-measured 90.6% vs 92.2%
+  # control, one flip out; rejected on the corrected instrument too
   morph_tokens: false
+  # conversational query condensing (plan 4.4): fold a follow-up + chat
+  # history into one standalone retrieval query (one extra LLM call, and only
+  # when there is history — single-turn queries pay nothing). ADOPTED: the
+  # multi-turn A/B flipped two deterministic retrieval misses (mt-ru-loans-001
+  # rank 7→1, mt-en-insurance-001 miss→rank 3) with zero regressions;
+  # control config + numbers in docs/hybrid_retrieval.md
+  query_condensing: true
 
 llm:
   base_url: https://api.deepseek.com
@@ -59,3 +68,7 @@ llm:
 
 app:
   history_turns: 6           # conversation turns sent back as context
+  # re-check every [n] marker against its passage after each answer and warn
+  # in the UI about ones that don't line up (plan 4.2) — deterministic string
+  # statistics, no API call, zero latency
+  verify_citations: true

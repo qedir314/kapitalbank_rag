@@ -40,7 +40,7 @@ from kb_rag.evaluation.citation_metrics import citation_stats
 from kb_rag.evaluation.dataset import GoldenQuestion, load_dataset
 from kb_rag.evaluation.generation_metrics import judge_answer, looks_like_refusal
 from kb_rag.evaluation.retrieval_metrics import (
-    first_relevant_rank,
+    first_relevant_source_rank,
     hit_at_k,
     mean,
     reciprocal_rank,
@@ -62,7 +62,7 @@ _ROW_KEYS = [
     "first_hit_rank", "n_sources_returned", "refused", "refusal_correct",
     "faithfulness", "correctness", "judge_rationale", "n_citations",
     "citation_valid_frac", "citation_support_frac", "citation_coverage",
-    "answer", "error", "judge_error",
+    "retrieval_query", "answer", "error", "judge_error",
 ]
 
 
@@ -91,20 +91,21 @@ def evaluate_question(
         row["error"] = f"answer: {type(exc).__name__}: {exc}"[:300]
         return row
 
-    # a source counts as matching when either its final URL or the original
-    # sitemap slug contains an expected fragment (kapitalbank pages 301 to
-    # birbank.az, so both identifiers are meaningful)
-    retrieved_urls = [
-        u for s in answer.sources for u in (s.url, s.source_url) if u
-    ]
-    rank = first_relevant_rank(retrieved_urls, item.expected_sources) if item.expected_sources else None
+    # rank over SOURCES (one entry per page), not a flattened URL list — each
+    # source still matches on either identity (final birbank.az URL or the
+    # original kapitalbank.az slug), but k now means what it says. The old
+    # flatten-each-URL approach doubled positions and made hit@6 behave as
+    # hit@3 (Phase 4 A/B catch; see retrieval_metrics docstring).
+    rank = (first_relevant_source_rank(answer.sources, item.expected_sources)
+            if item.expected_sources else None)
     row.update(
         hit=hit_at_k(rank, top_k),
         reciprocal_rank=reciprocal_rank(rank, top_k),
         first_hit_rank=(rank + 1) if rank is not None else None,
-        n_sources_returned=len(retrieved_urls),
+        n_sources_returned=len(answer.sources),
         refused=looks_like_refusal(answer.text),
         answer=answer.text or "",
+        retrieval_query=answer.retrieval_query,  # condensed standalone query, if any
     )
 
     if item.unanswerable:
@@ -342,7 +343,13 @@ def rejudge(csv_path: Path, judge_model: str, tag: str | None = None) -> pd.Data
         item = items.get(rec["id"])
         if item is None:
             continue
-        chunks = pipeline.retriever.retrieve(item.question, top_k=k)
+        # mirror pipeline.answer's retrieval path, condensing included, so the
+        # judge sees the same context the generator saw for multi-turn items
+        trimmed = pipeline._trim_history(item.history or [])
+        query = item.question
+        if trimmed and getattr(pipeline, "condenser", None) is not None:
+            query = pipeline.condenser.condense(item.question, trimmed)
+        chunks = pipeline.retriever.retrieve(query, top_k=k)
         context = build_context_block(chunks)
         try:
             result = judge_answer(

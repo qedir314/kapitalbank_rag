@@ -1,0 +1,53 @@
+# Ablation control (plan task 4.4): identical to config.yaml EXCEPT
+# query_condensing is forced OFF. Because condensing is now the shipped
+# default, this file is the *baseline* the feature was measured against —
+# re-run the A/B with it to reproduce the "bare follow-up" misses.
+#   treatment (default): python -m kb_rag.evaluation.runner
+#   control:             KB_CONFIG=config.ablation_nocondense.yaml python -m kb_rag.evaluation.runner
+scraper:
+  sitemap_url:
+    - https://www.kapitalbank.az/sitemap.xml
+    - https://birbank.az/sitemap.xml
+    - https://birbank.business/sitemap.xml
+  user_agent: "KapitalRAG-Bot/0.1 (educational RAG project)"
+  request_delay_sec: 0.5
+  timeout_sec: 20
+  retries: 2
+  min_text_chars: 300
+  exclude_url_patterns: ["ccl.birbank.az", "/success"]
+
+embedding:
+  model_name: BAAI/bge-m3
+  batch_size: 32
+  max_seq_tokens: 1024
+
+chunking:
+  target_chars: 800
+  overlap_chars: 120
+  min_chars: 200
+
+vector_store:
+  persist_dir: data/chroma
+  collection: kapital_kb
+  distance: cosine
+
+retrieval:
+  top_k: 6
+  exclude_sections: ["news"]
+  candidate_pool: 60
+  enable_bm25: true
+  rerank_model: BAAI/bge-reranker-v2-m3
+  rerank_candidates: 20
+  rerank_max_length: 320
+  query_condensing: false     # <-- the only difference from config.yaml
+
+llm:
+  base_url: https://api.deepseek.com
+  model: deepseek-chat
+  temperature: 0.2
+  max_tokens: 1024
+  judge_model: deepseek-chat
+
+app:
+  history_turns: 6
+  verify_citations: true

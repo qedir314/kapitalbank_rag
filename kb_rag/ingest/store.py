@@ -21,6 +21,8 @@ class RetrievedChunk:
     section: str
     section_path: str
     score: float  # cosine similarity in [0, 1]
+    crawled_at: str = ""  # ISO timestamp of the scrape (plan 4.3); "" on
+    # chunks indexed before the freshness rollout — rebuild refreshes them
 
 
 class VectorStore:
@@ -77,9 +79,19 @@ class VectorStore:
                     section=meta.get("section", ""),
                     section_path=meta.get("section_path", ""),
                     score=0.0,
+                    crawled_at=meta.get("crawled_at", "") or "",
                 )
             )
         return out
+
+    def latest_crawled_at(self) -> str:
+        """Max crawled_at over the whole collection (metadata-only scan)."""
+        result = self.collection.get(include=["metadatas"])
+        dates = [
+            (meta or {}).get("crawled_at") or ""
+            for meta in (result.get("metadatas") or [])
+        ]
+        return max(dates, default="")
 
     def query(
         self,
@@ -113,6 +125,7 @@ class VectorStore:
                     section=meta.get("section", ""),
                     section_path=meta.get("section_path", ""),
                     score=1.0 - float(dist),
+                    crawled_at=meta.get("crawled_at", "") or "",
                 )
             )
         return out

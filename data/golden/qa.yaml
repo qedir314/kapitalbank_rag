@@ -149,7 +149,7 @@
     (Coreference: kart = Birbank Miles debet.) Kartın qiyməti pulsuzdur —
     debet kartlarında kart pulsuz, nağdlaşdırma da pulsuzdur.
 
-# ============================================================ loans (9) ======
+# =========================================================== loans (10) ======
 - id: en-loans-001
   question: "What loan products does Kapital Bank offer?"
   category: loans
@@ -250,13 +250,31 @@
     minimum not preserved); refinancing loans may be excluded per the fine
     print.
 
+- id: mt-ru-loans-001
+  question: "А какая максимальная сумма?"
+  category: loans
+  lang: ru
+  history:
+    - role: user
+      content: "Что такое овердрафт для бизнеса в Kapital Bank?"
+    - role: assistant
+      content: "Овердрафт — кредит на расчётном счёте: при нехватке собственных средств банк покрывает платёж; лимит устанавливается по скорингу."
+  expected_sources: ["overdraft"]
+  reference_answer: >-
+    Максимальный лимит овердрафта по скорингу — 100 000 AZN на срок 12
+    месяцев; годовая ставка — 19% (на сумму до 25 000 AZN).
+  notes: >-
+    Plan 4.4: the bare follow-up carries no product referent; retrieval only
+    works once it is condensed with history into
+    «максимальная сумма овердрафта для бизнеса».
+
 # ========================================================= deposits (8) ======
 - id: en-deposits-001
   question: "What deposit products does Kapital Bank offer?"
   category: deposits
   lang: en
   expected_sources: ["deposits"]
-  notes: "label kept — /en/deposits pages do exist; the old miss was rank-7 retrieval, not a bad label"
+  notes: "label kept — /en/deposits pages do exist; the old 'rank-7 miss' was a metric artifact (URL-pair flattening made hit@6 behave as hit@3; the page is genuinely at chunk 4 — fixed in Phase 4)"
   reference_answer: >-
     For individuals: perpetual (demand) deposit — min 100 AZN/USD, funds
     withdrawable any time, interest paid at withdrawal, 12-month auto-renewal;
@@ -426,7 +444,7 @@
     No — you do not need an account at Kapital Bank/Birbank or any other bank;
     a valid identification document is enough.
 
-# ========================================================= insurance (6) =====
+# ======================================================= insurance (7) =====
 - id: en-insurance-001
   question: "Which insurance products can I get through Kapital Bank?"
   category: insurance
@@ -492,6 +510,24 @@
     письма/SMS, считывание в банкоматах). Пластиковые карты подключены к
     «3D Secure»; если сервис по желанию клиента отключён, мошеннические
     операции в интернете уже не страхуются.
+
+- id: mt-en-insurance-001
+  question: "And how much does it cost?"
+  category: insurance
+  lang: en
+  history:
+    - role: user
+      content: "What is Optimal Kasko?"
+    - role: assistant
+      content: "Optimal Kasko (Casco) is PAŞA Sığorta's vehicle insurance product offered through Kapital Bank / Birbank branches."
+  expected_sources: ["optimal-kasko"]
+  reference_answer: >-
+    Flat premiums: 250 AZN for unofficial-service repair, 300 AZN for official
+    service; available with an initial payment as low as 100 AZN; the
+    unconditional-deductible option is 100 AZN.
+  notes: >-
+    Plan 4.4: bare follow-up is pure Ellipsis (no product token at all) —
+    the hardest multi-turn case; must condense to «Optimal Kasko cost».
 
 # =============================================================== faq (8) =====
 - id: en-faq-001

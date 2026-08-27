@@ -53,8 +53,30 @@ def main() -> int:
         return 1
 
     last = answers[-1]
-    print(f"[2/2] Answer received ({len(last['sources'])} sources):")
+    print(f"[2/3] Answer received ({len(last['sources'])} sources):")
     print("  " + last["content"][:300].replace("\n", "\n  "))
+
+    # multi-turn: a bare follow-up exercises history + query condensing (4.4),
+    # and the citation-verification field (4.2) must be populated post-stream
+    at.chat_input[0].set_value("And how much does that card cost?")
+    at.run()
+    if at.exception:
+        print("FAILED on follow-up turn:")
+        for exc in at.exception:
+            print(f"  {type(exc).__name__}: {exc.value}")
+        return 1
+    messages = at.session_state["messages"]
+    turn2 = [m for m in messages if m["role"] == "assistant"][-1]
+    condensed = turn2.get("retrieval_query")
+    print(f"[3/3] Follow-up OK — condensed query: {condensed!r}")
+    if condensed is None:
+        print("  (no standalone rewrite — condensing off, or query unchanged)")
+    if "citation_flags" not in turn2:
+        print("FAILED: citation_flags missing (4.2 wiring broken).")
+        return 1
+    # freshness (4.3): at least one source should carry a crawl date now
+    dated = [s for s in turn2["sources"] if getattr(s, "crawled_at", "")]
+    print(f"  sources carrying crawled_at: {len(dated)}/{len(turn2['sources'])}")
     return 0
 
 
