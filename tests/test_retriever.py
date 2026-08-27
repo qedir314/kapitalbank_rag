@@ -33,7 +33,8 @@ def _chunk(url: str, score: float, text: str = "body", section: str = "cards",
     )
 
 
-def _make_settings(*, enable_bm25: bool = True, rerank: bool = False) -> Settings:
+def _make_settings(*, enable_bm25: bool = True, rerank: bool = False,
+                   query_expansion: bool = False) -> Settings:
     return Settings.model_validate({
         "scraper": {"sitemap_url": "https://x/sitemap.xml"},
         "embedding": EmbeddingConfig().model_dump(),
@@ -43,6 +44,7 @@ def _make_settings(*, enable_bm25: bool = True, rerank: bool = False) -> Setting
             enable_bm25=enable_bm25,
             rerank_model="fake-reranker" if rerank else None,
             rerank_candidates=5,
+            query_expansion=query_expansion,
         ).model_dump(),
         "llm": LLMConfig().model_dump(),
         "app": {"history_turns": 0},
@@ -272,6 +274,101 @@ def test_retriever_uses_python_predicate_for_bm25_when_lang_set():
     out = r.retrieve("kredit", top_k=3, lang="az")
     # dense alone gave the az chunk; BM25 must NOT sneak the en chunk through
     assert all(c.lang == "az" for c in out)
+
+
+# --------------------------------------------------------------------------- query expansion (plan 2.2)
+class _RecordingStore:
+    """Dense results keyed by query text; records every query it was asked.
+
+    The embedder and store are paired (``embed_query`` runs right before
+    ``query`` in ``_hybrid_candidates``), so ``last_query`` carries the text.
+    """
+
+    def __init__(self, by_query):
+        self._by_query = by_query
+        self.queries = []
+        self.last_query = None
+
+    def query(self, embedding, top_k, where=None):
+        q = self.last_query
+        self.queries.append(q)
+        return list(self._by_query.get(q, []))
+
+    def get_all_chunks(self):
+        return []
+
+
+class _SpyEmbedder:
+    """Zero vector for the fake store; tells the paired store which query it is."""
+
+    def __init__(self, store=None):
+        self.store = store
+
+    def embed_query(self, query):
+        import numpy as np
+        if self.store is not None:
+            self.store.last_query = query if isinstance(query, str) else query[0]
+        return np.zeros(4, dtype="float32")
+
+
+class _FakeExpander:
+    def __init__(self, variants):
+        self.variants = variants
+        self.calls = 0
+
+    def expand(self, query):
+        self.calls += 1
+        return self.variants
+
+
+def test_expansion_disabled_never_calls_expander():
+    chunks = [_chunk("https://x/a", 0.9)]
+    store = _FakeStore(dense_results=chunks, all_chunks=chunks)
+    expander = _FakeExpander(["q", "variant"])
+    settings = _make_settings(enable_bm25=False, query_expansion=False)
+    r = Retriever(settings, _FakeEmbedder({"q"}), store, expander=expander)
+    r.retrieve("q", top_k=1)
+    assert expander.calls == 0
+
+
+def test_expansion_retrieves_per_variant_and_fuses():
+    """Each expanded query hits the store; RRF promotes chunks seen in both."""
+    a = _chunk("https://x/a", 0.9)
+    b = _chunk("https://x/b", 0.8)
+    c = _chunk("https://x/c", 0.7)
+    store = _RecordingStore({"necə bloklayım": [a, b], "how to block": [b, c]})
+    expander = _FakeExpander(["necə bloklayım", "how to block"])
+
+    settings = _make_settings(enable_bm25=False, query_expansion=True)
+    r = Retriever(settings, _SpyEmbedder(store), store, expander=expander)
+    out = r.retrieve("how to block", top_k=3)
+
+    assert expander.calls == 1
+    assert set(store.queries) == {"necə bloklayım", "how to block"}
+    # b is rank-1 in list1 + rank-0 in list2 -> fused first; a and c follow
+    assert [ch.url for ch in out] == [
+        "https://x/b", "https://x/a", "https://x/c",
+    ]
+
+
+def test_expansion_reranker_sees_the_original_query(monkeypatch):
+    """Variants widen the pool, but scoring must answer what the user asked."""
+    seen = {}
+
+    class _SpyReranker:
+        def rerank(self, query, chunks):
+            seen["query"] = query
+            return list(reversed(chunks))
+
+    a = _chunk("https://x/a", 0.9)
+    b = _chunk("https://x/b", 0.8)
+    store = _RecordingStore({"orijinal": [a], "en variant": [b]})
+    settings = _make_settings(enable_bm25=False, query_expansion=True, rerank=True)
+    r = Retriever(settings, _SpyEmbedder(store), store,
+                  expander=_FakeExpander(["orijinal", "en variant"]))
+    r._reranker = _SpyReranker()
+    r.retrieve("orijinal", top_k=2)
+    assert seen["query"] == "orijinal"
 
 
 class _FakeBM25:

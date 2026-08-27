@@ -98,27 +98,42 @@ def judge_answer(
     context: str,
     answer: str,
     reference: str | None = None,
+    retries: int = 3,
+    max_tokens: int = 300,
 ) -> JudgeResult:
-    """Ask the judge model to score faithfulness/correctness of ``answer``."""
+    """Ask the judge model to score faithfulness/correctness of ``answer``.
+
+    Retries the whole call ``retries`` times when the judge returns output we
+    cannot parse as JSON — single flaky judge responses must not crash an
+    evaluation run mid-way (plan 3.5). The last error is re-raised only after
+    all attempts are exhausted.
+    """
     parts = [f"QUESTION:\n{question}", f"CONTEXT PASSAGES:\n{context}",
              f"GENERATED ANSWER:\n{answer}"]
     if reference:
         parts.append(f"REFERENCE ANSWER (additional ground truth):\n{reference}")
 
-    raw = llm_client.complete(
-        messages=[
-            {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
-            {"role": "user", "content": "\n\n---\n\n".join(parts)},
-        ],
-        stream=False,
-        model=judge_model,
-        temperature=0.0,
-        max_tokens=300,
-    )
-    data = parse_judge_json(raw)
-    return JudgeResult(
-        faithfulness=_clamp(data.get("faithfulness", 1)),
-        correctness=_clamp(data.get("correctness", 1)),
-        rationale=str(data.get("rationale", ""))[:300],
-        raw=raw,
-    )
+    last_error: Exception | None = None
+    for _ in range(max(1, retries)):
+        raw = llm_client.complete(
+            messages=[
+                {"role": "system", "content": JUDGE_SYSTEM_PROMPT},
+                {"role": "user", "content": "\n\n---\n\n".join(parts)},
+            ],
+            stream=False,
+            model=judge_model,
+            temperature=0.0,
+            max_tokens=max_tokens,
+        )
+        try:
+            data = parse_judge_json(raw)
+        except ValueError as exc:
+            last_error = exc
+            continue
+        return JudgeResult(
+            faithfulness=_clamp(data.get("faithfulness", 1)),
+            correctness=_clamp(data.get("correctness", 1)),
+            rationale=str(data.get("rationale", ""))[:300],
+            raw=raw,
+        )
+    raise last_error if last_error else RuntimeError("judge returned no result")

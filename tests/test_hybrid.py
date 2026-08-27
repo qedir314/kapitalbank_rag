@@ -54,6 +54,53 @@ def test_tokenize_is_case_insensitive():
     assert tokenize("BirKart BIRKART birkart") == ["birkart"] * 3
 
 
+# --------------------------------------------------------------------------- morphology (plan 2.3)
+def test_tokenize_morph_off_is_pure_surface():
+    # default behavior must be identical to the pre-2.3 tokenizer
+    assert tokenize("kreditlərin kartların") == ["kreditlərin", "kartların"]
+    assert tokenize("карта", morph=False) == ["карта"]
+
+
+def test_tokenize_morph_adds_az_stems_without_dropping_surface():
+    toks = tokenize("kreditlərin", morph=True)
+    assert toks[0] == "kreditlərin"  # surface form keeps full weight
+    assert "kredit" in toks          # lərin = lər+in compound stripped in one step
+
+
+def test_tokenize_morph_transliterates_cyrillic_then_stems():
+    toks = tokenize("по карта", morph=True)
+    assert "карта" in toks        # surface kept
+    assert "karta" in toks        # ru -> az Latin transliteration
+    assert "kart" in toks         # Latin form then takes the az suffix strip
+    assert "po" in toks           # short transliterations are kept as-is
+
+
+def test_tokenize_morph_guard_keeps_short_words_intact():
+    # "bank" (4) must not be chopped; only strips when the stem stays >= 4 chars
+    assert tokenize("bank kart", morph=True) == ["bank", "kart"]
+
+
+def test_bm25_morph_matches_agglutinated_query_to_stemmed_corpus():
+    chunks = [
+        _chunk("Kredit şərtləri və faiz dərəcəsi", "https://x.az/kredit"),
+        _chunk("Əmanət qutuları", "https://x.az/depozit"),
+    ]
+    # query says "kreditlərin" (plural genitive) — zero surface overlap:
+    # without augmentation BM25 returns nothing at all for this query
+    plain = BM25Index(chunks).search("kreditlərin", limit=2)
+    morphed = BM25Index(chunks, morph_tokens=True).search("kreditlərin", limit=2)
+    assert plain == []
+    assert [c.url for c in morphed] == ["https://x.az/kredit"]  # stem "kredit" bridges
+
+
+def test_bm25_morph_bridge_matches_kart_across_scripts():
+    # az corpus chunk, ru query — Cyrillic "Карта" must bridge to Latin "kart"
+    chunks = [_chunk("Kart üzrə limitlər", "https://x.az/kart")]
+    assert BM25Index(chunks).search("по карте", limit=2) == []  # surface: no match
+    hits = BM25Index(chunks, morph_tokens=True).search("Карта", limit=2)
+    assert [c.url for c in hits] == ["https://x.az/kart"]
+
+
 # --------------------------------------------------------------------------- BM25
 def test_bm25_ranks_exact_token_match_first():
     chunks = [

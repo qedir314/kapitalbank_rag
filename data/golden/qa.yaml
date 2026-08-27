@@ -1,120 +1,711 @@
-# Golden QA set for RAG evaluation.
+# Golden QA set for RAG evaluation (Phase 3 expansion: 30 -> ~70 questions).
+#
 # expected_sources are URL fragments — a retrieval counts as a hit when any
 # returned URL contains one of them (case-insensitive substring match).
-# unanswerable: true => the correct behavior is an explicit "I don't know".
+# unanswerable: true => the correct behavior is an explicit refusal.
+# reference_answer: ground truth the judge scores correctness against. Written
+# by verifying the cited corpus pages (data/raw/pages.jsonl), not copied from
+# generator output.
+# history: prior chat turns for multi-turn items (runner feeds them to the
+# pipeline to test coreference handling).
+# notes: provenance for reviewers (label fixes, deliberate KB-boundary items).
 #
-# NOTE: fragments reference final URLs; some kapitalbank.az pages 301 to
-# birbank.az, so both variants are listed where relevant. Validate against
-# data/raw/pages.jsonl after re-scraping.
+# Validate after any re-scrape:  python -m scripts.validate_golden_set
 
+# ============================================================ cards (12) =====
 - id: en-cards-001
   question: "What is the Birbank Miles debit card and what are its main features?"
   category: cards
   lang: en
   expected_sources: ["debet-kartlar"]
+  reference_answer: >-
+    Birbank Miles Debit is a debit card whose transactions earn miles that can
+    be redeemed for airline tickets with any airline; the card is free and
+    comes with bonuses from partner merchants.
 
 - id: en-cards-002
   question: "Which premium cards does Kapital Bank offer?"
   category: cards
   lang: en
   expected_sources: ["private.birbank.az", "debet-kartlar"]
-
-- id: en-deposits-001
-  question: "What deposit products does Kapital Bank offer?"
-  category: deposits
-  lang: en
-  expected_sources: ["deposits"]
-
-- id: en-faq-001
-  question: "How can I block my card if it is lost or stolen?"
-  category: faq
-  lang: en
-  expected_sources: ["faq", "how-to"]
-
-- id: en-transfers-001
-  question: "How can I send money via Western Union through Kapital Bank?"
-  category: money-transfers
-  lang: en
-  expected_sources: ["pul-kocurmeleri", "western-union"]
-
-- id: en-loans-001
-  question: "What loan products does Kapital Bank offer?"
-  category: loans
-  lang: en
-  expected_sources: ["kreditler", "loans"]
-
-- id: en-howto-001
-  question: "How do I order a new debit card online?"
-  category: how-to
-  lang: en
-  expected_sources: ["how-to", "online-order"]
-
-- id: en-insurance-001
-  question: "Which insurance products can I get through Kapital Bank?"
-  category: insurance
-  lang: en
-  expected_sources: ["insurance", "sigortalar"]
-
-- id: en-birbank-001
-  question: "What is Birbank?"
-  category: birbank
-  lang: en
-  expected_sources: ["birbank"]
+  reference_answer: >-
+    Premium tier: Birbank Platinum and Birbank Platinum Miles (premium
+    privileges + continuous bonuses), Birbank Visa Infinite Cashback and Visa
+    Infinite Miles (VIP status), Mastercard World Elite Miles; Birbank Private
+    adds private-banking VIP services (individual loans up to 50,000 AZN from
+    10.9%).
 
 - id: az-cards-001
   question: "Kapital Bankın taksit kartları hansılardır?"
   category: cards
   lang: az
-  expected_sources: ["debet-kartlar", "taksitkartlar"]
+  expected_sources: ["debet-kartlar", "taksit"]
+  notes: "label fix (Phase 3): old fragment 'taksitkartlar' matches no URL; real installment pages carry 'taksit'"
+  reference_answer: >-
+    Taksit (installment) kart ailəsi: BirKart Red, BirKart Black, BirKart
+    Umico, BirKart Miles — 0% faiz, 63 günədək güzəşt dövrü və 'taksit
+    kartları' kimi istifadə; üstəgəl Birbank Umico Premium Taksit Kartı
+    (Kapital Bank + Umico birgə məhsulu, gündəlik alış-verişlərdən keşbek).
 
 - id: az-cards-002
   question: "Birbank Cashback debet kartı hansı imkanları verir?"
   category: cards
   lang: az
-  expected_sources: ["debet-kartlar", "cashback-debet"]
+  expected_sources: ["debet-kartlar"]
+  reference_answer: >-
+    DİQQƏT: 'Birbank Cashback' debet deyil, taksit (installment) kartıdır;
+    debet siyahısında Cashback adına yalnız 'Birbank Visa Infinite Cashback'
+    debet kartı var (bütün Visa imkanları + VIP status). Əsl cavab bu fərqi
+    qeyd etməli və ya debet kart siyahısını (Debet, Miles Debet, Platinum,
+    Visa Infinite Cashback/Miles, Mastercard World Elite Miles, TələbəPlus)
+    göstərməlidir — saxta 'Cashback debet' uydurma-mamalıdır.
 
-- id: az-deposits-001
-  question: "Kapital Bankın depozit qutuları ilə bağlı şərtlər hansılardır?"
-  category: deposits
+- id: ru-cards-001
+  question: "Какие премиальные карты есть в Капитал Банке?"
+  category: cards
+  lang: ru
+  expected_sources: ["private.birbank.az", "debet-kartlar", "/ru/cards"]
+  reference_answer: >-
+    Премиальные дебетовые карты (страница /ru/debet-kartlar): Birbank
+    Platinum, Birbank Platinum Miles (премиальные привилегии и постоянные
+    бонусы), Birbank Visa Infinite Cashback / Miles (VIP-статус), Mastercard
+    World Elite Miles; плюс привилегии Birbank Private (кредиты до 50 000 AZN
+    от 10,9%, личный ассистент).
+
+- id: en-cards-003
+  question: "Which Birbank debit cards earn miles and which ones focus on cashback or bonuses?"
+  category: cards
+  lang: en
+  expected_sources: ["debet-kartlar"]
+  reference_answer: >-
+    Miles: Birbank Miles Debit, Platinum Miles, Visa Infinite Miles,
+    Mastercard World Elite Miles (miles redeemable for any airline ticket).
+    Cashback/bonus: Visa Infinite Cashback (VIP), Birbank Debet (partner
+    bonuses, free cash withdrawals), Birbank Platinum (continuous bonuses).
+    Note the Birbank Cashback *installment* card is a credit product, not a
+    debit card.
+
+- id: az-cards-003
+  question: "Birbank Umico Premium taksit kartını kimlər əldə edə bilər?"
+  category: cards
   lang: az
-  expected_sources: ["depozit-seyfleri", "deposit-safes"]
+  expected_sources: ["birbank-umico-premium-taksit"]
+  reference_answer: >-
+    Kapital Bank və ya digər bankdan əmək haqqı/təqaüd alan şəxslər; yaş həddi
+    minimum 18, maksimum 67; son iş yerində minimum 3 ay iş stajı; kart
+    pulsuzdur və UmicoBank ödənişlərinə görə keşbek verir.
+
+- id: az-cards-004
+  question: "Birbank debet kartının qiyməti və nağdlaşdırma şərtləri nəcidir?"
+  category: cards
+  lang: az
+  expected_sources: ["debet-kartlar"]
+  reference_answer: >-
+    Kartın qiyməti pulsuzdur; partnyorlardan bonus qazanılır və nağd
+    çıxarışlar pulsuzdur (pulsuz nağdlaşdırma imkanı).
+
+- id: ru-cards-002
+  question: "Чем отличается карта Birbank Platinum Miles от обычной Birbank Debit?"
+  category: cards
+  lang: ru
+  expected_sources: ["debet-kartlar"]
+  reference_answer: >-
+    Birbank Debet — базовая дебетовая карта: партнёрские бонусы и бесплатное
+    снятие наличных, стоимость карты бесплатная. Birbank Platinum Miles —
+    премиальная: дополнительные мили за операции ("зарабатывай больше миль") и
+    премиальные привилегии.
+
+- id: ru-cards-003
+  question: "Какие привилегии даёт карта Birbank Platinum?"
+  category: cards
+  lang: ru
+  expected_sources: ["debet-kartlar"]
+  reference_answer: >-
+    С картой Birbank Platinum клиента ждут премиальные привилегии и постоянные
+    бонусы (версия Platinum Miles добавляет повышенное накопление миль).
+
+- id: en-cards-004
+  question: "What commission applies when withdrawing my own funds from another bank's ATM with a Birbank installment card?"
+  category: cards
+  lang: en
+  expected_sources: ["transfer-and-cashing-info"]
+  reference_answer: >-
+    For installment-card owners, withdrawing own funds from other banks' ATMs
+    inside Azerbaijan costs a flat 2 AZN/USD/EUR regardless of amount;
+    transferring to local bank cards is free up to a total of 5,000 AZN,
+    beyond which a 0.5% (min 1 AZN/USD/EUR) fee applies.
+
+- id: mt-az-cards-001
+  question: "Bəs kartın qiyməti nə qədərdir?"
+  category: cards
+  lang: az
+  history:
+    - role: user
+      content: "Birbank Miles debet kartı nədir?"
+    - role: assistant
+      content: "Birbank Miles debet kartı əməliyyatlardan mil qazandırır və qazandığınız milləri istənilən aviadaşının biletinə dəyişə bilərsiniz."
+  expected_sources: ["debet-kartlar"]
+  reference_answer: >-
+    (Coreference: kart = Birbank Miles debet.) Kartın qiyməti pulsuzdur —
+    debet kartlarında kart pulsuz, nağdlaşdırma da pulsuzdur.
+
+# ============================================================ loans (9) ======
+- id: en-loans-001
+  question: "What loan products does Kapital Bank offer?"
+  category: loans
+  lang: en
+  expected_sources: ["kreditler", "loans"]
+  reference_answer: >-
+    The KB documents at least: deposit-secured loan (low interest, minimal
+    documentation — ID only; foreigners passport-only), micro-business loans
+    (1,000–100,000 AZN, 6–36 months, unsecured option), and Personal/Birbank
+    Private loans from 10.9% up to 50,000 AZN without guarantor/collateral. A
+    complete answer may defer to kapitalbank.az/1911 for the full catalogue.
 
 - id: az-loans-001
   question: "Nağd pul krediti üçün maksimal məbləğ nə qədərdir?"
   category: loans
   lang: az
-  expected_sources: ["naqd", "kreditler"]
-
-- id: az-faq-001
-  question: "Kartımı itirdimsə, necə bağlaya bilərəm?"
-  category: faq
-  lang: az
-  expected_sources: ["faq"]
-
-- id: az-transfers-001
-  question: "Xəzri pul köçürməsi hansı ölkələrə edilə bilər?"
-  category: money-transfers
-  lang: az
-  expected_sources: ["pul-kocurmeleri", "xezri", "xazri"]
+  expected_sources: ["nagd-kredit", "kreditler"]
+  notes: "KB does not state a maximum — honest limitation is the correct answer (stale-trap style question)"
+  reference_answer: >-
+    Kontekstdə nağd kredit üçün maksimal məbləğ göstərilmir. Düzgün cavab bunu
+    etiraf edir və mövcud kampaniya faktını verir: kampaniya çərçivəsində hər
+    6 000 AZN kreditə aylıq ödəniş 190 AZN; onlayn rəsmiləşdirmədə
+    nağdlaşdırma komissiyası 0%; müraciətlər üçün 1911-ə yönləndirir.
 
 - id: az-micro-001
   question: "Mikro biznes kreditləri hansı şərtlərlə verilir?"
   category: loans
   lang: az
   expected_sources: ["mikro-biznes", "mikrokredit"]
+  reference_answer: >-
+    Yaş 20-dən yuxarı, sahibkarlıq/peşə fəaliyyəti üzrə minimum 12 ay təcrübə,
+    qeydiyyatdan keçmiş VÖEN, kredit tarixçəsinin qiymətləndirilməsi; məbləğ
+    1 000–100 000 AZN, müddət 6–36 ay, illik faiz 16%-dən başlayır (girov və ya
+    zaminlə daha aşağı); girovsuz/zaminsiz də rəsmiləşdirilə bilər.
 
-- id: az-virtual-001
-  question: "Virtual kartı necə əldə edə bilərəm?"
-  category: cards
+- id: ru-loans-001
+  question: "Можно ли получить кредит под залог депозита и на каких условиях?"
+  category: loans
+  lang: ru
+  expected_sources: ["emanet-teminatli-kredit", "kreditler"]
+  reference_answer: >-
+    Да. Годовая ставка: депозиты в AZN +5%, в USD +4%. Не требуются справка о
+    доходах, подтверждение занятости и места жительства — кредит оформляется
+    на основании только депозитного счёта в Kapital Bank/Birbank.
+
+- id: en-loans-002
+  question: "Can I get a loan secured by my deposit at Kapital Bank?"
+  category: loans
+  lang: en
+  expected_sources: ["emanet-teminatli-kredit", "kreditler"]
+  reference_answer: >-
+    Yes — deposit-secured loan: low interest, obtained quickly based solely on
+    the deposit account; no income statement, employment or residence
+    verification; foreign nationals can apply with a passport only (military
+    personnel add a service ID to the national ID).
+
+- id: en-loans-003
+  question: "What are the amount and term limits for the micro business loan?"
+  category: loans
+  lang: en
+  expected_sources: ["mikro-biznes", "mikro-kredit"]
+  reference_answer: >-
+    1,000–100,000 AZN, term 6–36 months; the concrete amount/term depends on
+    business turnover and repayment capacity; from 16% annual (lower with
+    collateral/guarantor); applicants need age 20+, 12 months business
+    experience and a registered VÖEN.
+
+- id: az-loans-002
+  question: "Emanət təminatlı kreditin illik faiz dərəcəsi necə müəyyən edilir?"
+  category: loans
   lang: az
-  expected_sources: ["virtualcards", "virtual-kart"]
+  expected_sources: ["emanet-teminatli-kredit"]
+  reference_answer: >-
+    İllik faiz dərəcəsi depozitin valyutasından asılıdır: AZN depozitləri üzrə
+    depozit dərəcəsinə +5%, USD depozitləri üzrə +4%. Gəlir hesabatı və ya
+    əmək haqqı vəsiqəsi tələb olunmur — yalnız Kapital Bankdakı depozit
+    hesabı kifayətdir.
 
+- id: ru-loans-002
+  question: "Каков максимальный лимит овердрафта для бизнеса и его годовая ставка?"
+  category: loans
+  lang: ru
+  expected_sources: ["overdraft"]
+  reference_answer: >-
+    Максимальный лимит по скорингу — 100 000 AZN на срок 12 месяцев; годовая
+    ставка овердрафта — 19% (на сумму до 25 000 AZN); в течение рабочего дня
+    средствами можно пользоваться без процентов.
+
+- id: en-loans-004
+  question: "What monthly payment does the cash loan campaign quote for a 6,000 AZN loan, and when can the campaign terms be lost?"
+  category: loans
+  lang: en
+  expected_sources: ["nagd-kredit"]
+  reference_answer: >-
+    The campaign quotes 190 AZN monthly per 6,000 AZN loan; online-arranged
+    loans carry 0% cash-out commission. The campaign cannot be used if the sum
+    of the client's loan payments exceeds 45% of official income (subsistence
+    minimum not preserved); refinancing loans may be excluded per the fine
+    print.
+
+# ========================================================= deposits (8) ======
+- id: en-deposits-001
+  question: "What deposit products does Kapital Bank offer?"
+  category: deposits
+  lang: en
+  expected_sources: ["deposits"]
+  notes: "label kept — /en/deposits pages do exist; the old miss was rank-7 retrieval, not a bad label"
+  reference_answer: >-
+    For individuals: perpetual (demand) deposit — min 100 AZN/USD, funds
+    withdrawable any time, interest paid at withdrawal, 12-month auto-renewal;
+    deposit safe boxes; plus Personal Accident Insurance on Capital Deposit
+    (from 5,000 AZN deposits). Businesses: Biznes Depozit (local/foreign
+    currency, min 100 AZN/EUR/USD).
+
+- id: az-deposits-001
+  question: "Kapital Bankın depozit qutuları ilə bağlı şərtlər hansılardır?"
+  category: deposits
+  lang: az
+  expected_sources: ["depozit-seyfleri"]
+  reference_answer: >-
+    Depozit seyfləri 3 aydan çox müddətə verilir; aylıq xidmət haqqı ölçüdən
+    asılıdır: 30 AZN (10x40x45) — 75 AZN (60x40x45) aralığında, məsələn
+    15x32x43 — 40 AZN, 25x40x45 — 55 AZN, 30x32x43 — 60 AZN.
+
+- id: ru-deposits-001
+  question: "Какие вклады предлагает Капитал Банк?"
+  category: deposits
+  lang: ru
+  expected_sources: ["deposits", "vklady"]
+  reference_answer: >-
+    Бессрочный депозит: минимальная сумма 100 AZN/USD, снятие в любое время,
+    проценты выплачиваются при снятии, минимальный срок 12 месяцев с
+    автоматической пролонгацией; для юрлиц — бизнес-депозит (100 AZN/EUR/USD);
+    также депозитные сейфы (30–75 AZN/мес. по размеру).
+
+- id: en-deposits-002
+  question: "What is the minimum amount of the perpetual (müddətsiz) deposit and when is interest paid?"
+  category: deposits
+  lang: en
+  expected_sources: ["muddetsiz-depozit"]
+  reference_answer: >-
+    Minimum 100 AZN/USD; interest is paid when the deposit amount is withdrawn
+    (not on a schedule); contracts run for a minimum of 12 months and renew
+    automatically unless rates/terms change.
+
+- id: az-deposits-002
+  question: "Biznes depozit hesabını açmaq üçün hansı sənədlər tələb olunur və minimum məbləğ nə qədərdir?"
+  category: deposits
+  lang: az
+  expected_sources: ["depozitler", "hesab-xidmetleri"]
+  reference_answer: >-
+    Hüquqi şəxsin Kapital Bankda depozit hesabının olması kifayətdir — əlavə
+    sənəd tələb olunmur; minimum məbləğ 100 AZN/EUR/USD; vəsait yerli və xarici
+    valyutada saxlanılır, bank əmanətlərin məxfiliyini təmin edir.
+
+- id: ru-deposits-002
+  question: "Сколько стоит депозитный сейф размером 60x40x45 см и на какой минимальный срок он сдаётся?"
+  category: deposits
+  lang: ru
+  expected_sources: ["depozit-seyfleri"]
+  reference_answer: >-
+    60 см x 40 см x 45 см — 75 AZN в месяц; минимальный срок хранения — от 3
+    месяцев.
+
+- id: en-deposits-003
+  question: "What insurance comes with a capital deposit of at least 5,000 AZN?"
+  category: deposits
+  lang: en
+  expected_sources: ["ferdi-qeza-sigortasi", "deposits"]
+  reference_answer: >-
+    Personal Accident Insurance on Capital Deposit: opens together with a
+    deposit of minimum 5,000 AZN (in AZN), valid one year; covers death and
+    disability grades I–III from accident or illness (100% of the insured
+    amount for death/Grade I).
+
+- id: mt-ru-deposits-001
+  question: "А какая минимальная сумма для него?"
+  category: deposits
+  lang: ru
+  history:
+    - role: user
+      content: "Что такое бессрочный депозит в Капитал Банке?"
+    - role: assistant
+      content: "Бессрочный депозит — вклад без ограничения по сроку: средства можно снимать в любое время, проценты выплачиваются при снятии."
+  expected_sources: ["muddetsiz-depozit", "deposits"]
+  reference_answer: >-
+    (Coreference: «него» = бессрочный депозит.) Минимальная сумма — 100
+    AZN/USD.
+
+# ===================================================== money-transfers (7) ====
+- id: en-transfers-001
+  question: "How can I send money via Western Union through Kapital Bank?"
+  category: money-transfers
+  lang: en
+  expected_sources: ["western-union", "pul-kocurmeleri"]
+  reference_answer: >-
+    No bank account is required — a valid ID suffices; transfers are made
+    primarily in USD to 200+ countries; visit a Birbank branch and fill in the
+    transfer form (amount, currency, destination); commission depends on
+    amount/destination/currency and is shown before the transaction.
+
+- id: az-transfers-001
+  question: "Xəzri pul köçürməsi hansı ölkələrə edilə bilər?"
+  category: money-transfers
+  lang: az
+  expected_sources: ["pul-kocurmeleri", "xezri", "xazri"]
+  reference_answer: >-
+    Xəzri ölkədaxili sürətli köçürmə sistemidir — beynəlxalq ölkə siyahısı
+    yoxdur (daxili köçürmələr saniyələr ərzində, minimal komissiya ilə).
+    Beynəlxalq köçürmələr üçün Western Union (200+ ölkə) təklif olunur. Düzgün
+    cavab Xəzrini daxili sistem kimi göstərməlidir.
+
+- id: ru-transfers-001
+  question: "Как отправить перевод через Золотая Корона в Капитал Банке?"
+  category: money-transfers
+  lang: ru
+  unanswerable: true
+  notes: "reclassified (Phase 3): Zolotaya Korona exists in the corpus only as excluded news articles — correct behavior is refusal, not retrieval hit"
+  reference_answer: null
+
+- id: az-transfers-002
+  question: "Kartdan karta köçürmə xidməti hansı kartların sahibləri üçün mövcuddur?"
+  category: money-transfers
+  lang: az
+  expected_sources: ["card-to-card", "cash-card-to-card"]
+  reference_answer: >-
+    Kapital Bank Visa kartlarının (Electron, Classic, Gold, Business, Business
+    Gold, Platinum) və MasterCard kartlarının (Maestro, Standard, Gold və s.)
+    sahibləri üçün ATM və Mobil Bank vasitəsilə kart hesabından kart hesabına
+    köçürmə mümkündür.
+
+- id: en-transfers-002
+  question: "What commission does the Cash-by-Code service charge?"
+  category: money-transfers
+  lang: en
+  expected_sources: ["cash-by-code"]
+  reference_answer: >-
+    1% of the amount (minimum 1 AZN) for salary cards and 0% for debit cards;
+    the system generates a two-part code — Code1 is SMSed to the recipient,
+    Code2 stays with the sender on the receipt; funds are received at an ATM
+    without a card.
+
+- id: ru-transfers-002
+  question: "Как внести наличные на карту Kapital Bank без самой карты?"
+  category: money-transfers
+  lang: ru
+  expected_sources: ["cash-card-to-card", "pul-kocurmeleri"]
+  reference_answer: >-
+    Через банкоматы «Cash in Kapital Bank» (Cash to Card): достаточно ввести
+    16-значный номер карты, на которую зачисляются средства — карта-получатель
+    не нужна; средства зачисляются сразу.
+
+- id: ru-transfers-003
+  question: "В какой валюте преимущественно отправляются переводы Western Union и нужен ли для этого счёт в банке?"
+  category: money-transfers
+  lang: ru
+  expected_sources: ["western-union", "pul-kocurmeleri"]
+  reference_answer: >-
+    Переводы Western Union идут преимущественно в долларах США (другие валюты
+    возможны в отдельных случаях); счёт в Kapital Bank/Birbank не требуется —
+    достаточно действительного документа, удостоверяющего личность.
+
+- id: mt-en-transfers-001
+  question: "And do I need a bank account with Kapital Bank for that?"
+  category: money-transfers
+  lang: en
+  history:
+    - role: user
+      content: "How do I receive a Western Union transfer?"
+    - role: assistant
+      content: "Western Union transfers can be received at Kapital Bank/Birbank branches; the system covers 200+ countries."
+  expected_sources: ["western-union", "pul-kocurmeleri"]
+  reference_answer: >-
+    No — you do not need an account at Kapital Bank/Birbank or any other bank;
+    a valid identification document is enough.
+
+# ========================================================= insurance (6) =====
+- id: en-insurance-001
+  question: "Which insurance products can I get through Kapital Bank?"
+  category: insurance
+  lang: en
+  expected_sources: ["sigortalar", "insurance"]
+  reference_answer: >-
+    Unemployment insurance (covers loan/card debt on job loss from
+    liquidation/downsizing), Personal Accident Insurance on Capital Deposit
+    (min 5,000 AZN deposit), Optimal Kasko (PAŞA Sığorta, 250–300 AZN
+    premium), phishing–skimming fraud protection, and physical-damage
+    insurance for credit/debit cards.
+
+- id: ru-insurance-001
+  question: "Какие страховые продукты предлагает Капитал Банк?"
+  category: insurance
+  lang: ru
+  expected_sources: ["sigortalar", "insurance", "straxov"]
+  reference_answer: >-
+    Индивидуальная страховка от несчастных случаев (владельцы вкладов от 5 000
+    AZN, 1 год), страхование от безработицы (должники по потребкредитам и
+    картам, покрытие до 200 AZN/мес. до 5 мес.), страхование карт от физиче-
+    ского повреждения, оптимальное каско от PAŞA Sığorta, защита от
+    фишинга/скимминга.
+
+- id: az-insurance-001
+  question: "Optimal kasko sığortası hansı şirkətdəndir və qiyməti nə qədərdir?"
+  category: insurance
+  lang: az
+  expected_sources: ["optimal-kasko"]
+  reference_answer: >-
+    PAŞA Sığorta şirkətinin Kapital Bank/Birbank müştəriləri üçün məhsuludur;
+    sığorta haqqı: qeyri-rəsmi servis 250 AZN, rəsmi servis 300 AZN; şərtsiz
+    azadolma 100 AZN.
+
+- id: az-insurance-002
+  question: "İşsizlik sığortası hansı hallarda və nə qədər ödəyir?"
+  category: insurance
+  lang: az
+  expected_sources: ["issizlik"]
+  reference_answer: >-
+    Müəssisə ləğv edildikdə, iş yerləri ixtisar edildikdə və ya azaldıldıqda
+    iş itirilərsə: maksimum 5 ay olmaqla, aylıq kredit kartı borcu üçün 200
+    AZN-ə qədər ödənilir; ödəniş gecikmələrinə görə cərimə və dəbbə pulu
+    ödənilmir.
+
+- id: en-insurance-002
+  question: "What does debit card physical-damage insurance cover and how many free replacements are there?"
+  category: insurance
+  lang: en
+  expected_sources: ["debet-kartlarin-fiziki-zedelenmeden", "sigortalar"]
+  reference_answer: >-
+    Covers theft/robbery, ATM incidents, fire, natural disasters, deliberate
+    third-party acts and loss; on damage or loss the card is replaced free of
+    charge — 1-year cards once per insurance year, 3-year cards up to 3 times.
+
+- id: ru-insurance-002
+  question: "От чего защищает страхование фишинга и скимминга и при каком условии действует 3D Secure?"
+  category: insurance
+  lang: ru
+  expected_sources: ["phishing-skimming"]
+  reference_answer: >-
+    Покрывает убытки от фишинговых атак и скимминга (кража данных карты через
+    письма/SMS, считывание в банкоматах). Пластиковые карты подключены к
+    «3D Secure»; если сервис по желанию клиента отключён, мошеннические
+    операции в интернете уже не страхуются.
+
+# =============================================================== faq (8) =====
+- id: en-faq-001
+  question: "How can I block my card if it is lost or stolen?"
+  category: faq
+  lang: en
+  expected_sources: ["faq"]
+  notes: "KB-boundary item: the FAQ pages contain PIN/account block and 3D Secure unblock, but NO lost-card blocking procedure"
+  reference_answer: >-
+    The KB FAQ does not contain a lost-card blocking procedure (it covers
+    unblocking a card and unlocking 3D Secure). The correct answer says so
+    honestly and directs the user to the Birbank app card settings and/or
+    1911 — it must not invent steps.
+
+- id: az-faq-001
+  question: "Kartımı itirdimsə, necə bağlaya bilərəm?"
+  category: faq
+  lang: az
+  expected_sources: ["faq"]
+  notes: "KB-boundary item, same as en-faq-001"
+  reference_answer: >-
+    Kontekstdə itmiş kartın bloklanması üzrə addım-addım təlimat yoxdur (FAQ
+    kartın blokdan çıxarılması və 3D Secure əməliyyatlarını əhatə edir). Düzgün
+    cavab limiti etiraf edir və Birbank tətbiqinin kart bölməsinə / 1911-ə
+    yönləndirir; uydurma addımlar yazmamalıdır.
+
+- id: ru-faq-001
+  question: "Что делать, если я потерял карту банка?"
+  category: faq
+  lang: ru
+  expected_sources: ["faq"]
+  notes: "KB-boundary item; card-damage insurance (free replacement on loss) is the adjacent documented fact"
+  reference_answer: >-
+    RU FAQ не описывает блокировку утерянной карты. Допустимый честный ответ:
+    признание этого + связанная информация (страхование карт от физического
+    повреждения покрывает случаи утраты с бесплатной заменой) + звонок 1911;
+    выдуманные шаги блокировки недопустимы.
+
+- id: az-faq-002
+  question: "Kartıma qoşulmuş xidmətləri necə söndürə bilərəm?"
+  category: faq
+  lang: az
+  expected_sources: ["faq"]
+  reference_answer: >-
+    Əsas səhifədən lazım olan kartı seçin, səhifəni yuxarı sürüşdürün, "Karta
+    qoşulmuş sevislər" bölməsinə keçin — orada xidmətləri aktiv/deaktiv etmək
+    olar.
+
+- id: en-faq-002
+  question: "How do I activate the 3D Secure service on my card?"
+  category: faq
+  lang: en
+  expected_sources: ["faq"]
+  reference_answer: >-
+    On the main page select the card, scroll the opened page, select "3D
+    Secure", enter the code and press "Activate" — then the service shows as
+    "Active".
+
+- id: en-faq-003
+  question: "What should I do if I forgot my app password?"
+  category: faq
+  lang: en
+  expected_sources: ["faq"]
+  reference_answer: >-
+    From the main menu open "Registration" (or "For users registered in
+    BirBank") and the "Can't log in to the app?" section and follow the
+    re-registration/recovery flow described there.
+
+- id: ru-faq-002
+  question: "Что произойдёт, если я три раза подряд введу неверный PIN-код?"
+  category: faq
+  lang: ru
+  expected_sources: ["faq"]
+  reference_answer: >-
+    Счёт блокируется. Нужно позвонить в информационный центр 196, подтвердить
+    личность — блокировка со счёта будет снята.
+
+- id: az-faq-003
+  question: "Kartla Birbank tətbiqinə necə qeydiyyatdan keçirəm?"
+  category: faq
+  lang: az
+  expected_sources: ["faq"]
+  reference_answer: >-
+    "Birbank" tətbiqinə daxil olun → "Qeydiyyat" bölməsini seçin → qeydiyyat
+    üsulunu seçin: SİMA ilə və ya mobil nömrə ilə; SİMA seçilərsə ekrandakı
+    addımları tamamlayın.
+
+# ============================================================ how-to (4) =====
+- id: en-howto-001
+  question: "How do I order a new debit card online?"
+  category: how-to
+  lang: en
+  expected_sources: ["online-order", "debet-kartlar"]
+  reference_answer: >-
+    Cards can be ordered online via Kapital Bank's online services / the
+    Birbank site and app without visiting a branch (the debit-card page has an
+    "Online card order" FAQ covering fees, documents and approval timing).
+
+- id: az-howto-001
+  question: "Kart sifarişi üçün mütləq banka getmək lazımdır?"
+  category: how-to
+  lang: az
+  expected_sources: ["debet-kartlar", "online-order"]
+  reference_answer: >-
+    Xeyr — kartların onlayn sifarişi mövcuddur; debet kart səhifəsinin "Onlayn
+    Kart Sifarişi" FAQ bölməsi banka gəlmədən sifarişi, komissiyaları və
+    müraciətin təsdiq vaxtını izah edir.
+
+- id: en-howto-002
+  question: "Can I add my Birbank card to a digital wallet such as Apple Pay or Google Pay?"
+  category: how-to
+  lang: en
+  expected_sources: ["debet-kartlar"]
+  reference_answer: >-
+    The debit-card online-order FAQ answers this ("Can I add my card to
+    digital wallets (Apple Pay/Google Pay)?") — cards can be provisioned to
+    digital wallets.
+
+- id: ru-howto-001
+  question: "Как получить справку или выписку без визита в отделение?"
+  category: how-to
+  lang: ru
+  expected_sources: ["online-order"]
+  reference_answer: >-
+    Через онлайн-сервисы Kapital Bank: справки и выписки заказываются без
+    посещения банка, там же — переводы, погашение кредитов и заказ карт.
+
+# ========================================================== birbank (4) ======
+- id: en-birbank-001
+  question: "What is Birbank?"
+  category: birbank
+  lang: en
+  expected_sources: ["about-us", "birbank"]
+  reference_answer: >-
+    Since 2025 Kapital Bank provides customer services under the Birbank brand
+    (also a mobile app and birbank.az); Kapital Bank continues as the
+    financial institution and corporate brand — Birbank is the service brand.
+
+- id: az-birbank-001
+  question: "Birbank brendi nə vaxtdan fəaliyyət göstərir və Kapital Bankla əlaqəsi nədir?"
+  category: birbank
+  lang: az
+  expected_sources: ["about-us"]
+  reference_answer: >-
+    2025-ci ildən: bank uzun illər Kapital Bank adı ilə (Azərbaycan Yığılma
+    Bankının varisi kimi) fəaliyyət göstərib; hazırda Kapital Bank maliyyə
+    kurumu və korporativ brend kimi davam edir, Birbank isə müştəri
+    xidmətlərinin əsas brendidir.
+
+- id: ru-birbank-001
+  question: "Каким банком-предшественником является Kapital Bank и под каким брендом работает с 2025 года?"
+  category: birbank
+  lang: ru
+  expected_sources: ["about-us"]
+  reference_answer: >-
+    Kapital Bank — преемник Azerbaijan Deposit Bank (Азербайджанского
+    Сберегательного Банка); с 2025 года услуги населению оказываются под
+    брендом Birbank.
+
+- id: en-birbank-002
+  question: "What is the relationship between the Kapital Bank corporate brand and the Birbank customer brand today?"
+  category: birbank
+  lang: en
+  expected_sources: ["about-us"]
+  reference_answer: >-
+    They are the same bank: Kapital Bank continues as the legal/financial
+    institution and corporate brand, while Birbank is the customer-facing
+    service brand (app + website) used since 2025.
+
+# ============================================================= other (4) =====
 - id: az-generic-001
   question: "Kapital Bank filiallarının iş saatları necədir?"
   category: other
   lang: az
-  expected_sources: ["locations", "filiallar"]
+  expected_sources: ["private.birbank"]
+  notes: "KB only documents the Private Banking branch schedule; general branch hours were never crawled"
+  reference_answer: >-
+    Ümumi filialların iş saatları bazada yoxdur; yalnız Birbank Private
+    filialının cədvəli göstərilir: Bülbül pr. 60, Bazar ertəsi–Cümə 09:00–
+    18:00, +994 12 310 15 55. Düzgün cavab bu limiti deyir və 1911-ə
+    yönləndirir.
 
+- id: az-other-001
+  question: "Kapital Bank neçə ildir fəaliyyət göstərir və neçə müştərisi var?"
+  category: other
+  lang: az
+  expected_sources: ["about", "kapitalbank.az"]
+  reference_answer: >-
+    Azərbaycan Əmanət (Yığılma) Bankının varisi kimi 150 ildir fəaliyyət
+    göstərir; Azərbaycanda ən böyük xidmət şəbəkəsidir — 5 milyondan çox
+    fiziki, 22 mindən artıq hüquqi şəxsə xidmət göstərir.
+
+- id: en-other-002
+  question: "What is Kapital Bank's legal address and SWIFT code?"
+  category: other
+  lang: en
+  expected_sources: ["requisites"]
+  reference_answer: >-
+    Legal address AZ1010, Baku, Nasimi district, Neftchilar avenue 153; SWIFT:
+    AIIBAZ2X; correspondent account AZ37NABZ01350100000000001944; auditor:
+    Ernst & Young.
+
+- id: ru-other-001
+  question: "Что такое функция «Этибарнаме» в приложении и кому она полезна?"
+  category: other
+  lang: ru
+  expected_sources: ["etibarname"]
+  reference_answer: >-
+    Доверенность в приложении: клиент назначает доверенное лицо, которое
+    совершает операции в отделении вместо него; полезно тем, у кого мало
+    времени, пожилым и тем, кому трудно прийти в филиал; какие операции
+    разрешены — выбирает сам клиент.
+
+# ================================================== unanswerable (11) ========
 - id: az-unans-001
   question: "Kapital Bankın daxili skorinq modelindən keçmək üçün minimum bal neçədir?"
   category: credit-risk
@@ -126,42 +717,6 @@
   category: loans
   lang: az
   unanswerable: true
-
-- id: ru-cards-001
-  question: "Какие премиальные карты есть в Капитал Банке?"
-  category: cards
-  lang: ru
-  expected_sources: ["private.birbank.az", "debet-kartlar", "/ru/cards"]
-
-- id: ru-deposits-001
-  question: "Какие вклады предлагает Капитал Банк?"
-  category: deposits
-  lang: ru
-  expected_sources: ["deposits", "vklady"]
-
-- id: ru-transfers-001
-  question: "Как отправить перевод через Золотая Корона в Капитал Банке?"
-  category: money-transfers
-  lang: ru
-  expected_sources: ["pul-kocurmeleri", "zolotaya-korona"]
-
-- id: ru-faq-001
-  question: "Что делать, если я потерял карту банка?"
-  category: faq
-  lang: ru
-  expected_sources: ["faq"]
-
-- id: ru-loans-001
-  question: "Можно ли получить кредит под залог депозита и на каких условиях?"
-  category: loans
-  lang: ru
-  expected_sources: ["kreditler", "zalog", "deposits"]
-
-- id: ru-insurance-001
-  question: "Какие страховые продукты предлагает Капитал Банк?"
-  category: insurance
-  lang: ru
-  expected_sources: ["insurance", "sigortalar", "straxov"]
 
 - id: ru-unans-001
   question: "Какая внутренняя комиссия банка за обслуживание скрытых счетов?"
@@ -181,8 +736,44 @@
   lang: en
   unanswerable: true
 
-- id: en-loans-002
-  question: "Can I get a loan secured by my deposit at Kapital Bank?"
+- id: az-unans-003
+  question: "Mənim kartımın balansını göstər."
+  category: account-data
+  lang: az
+  unanswerable: true
+  notes: "private per-customer data — a public KB cannot answer; must not be pretended with sample numbers"
+
+- id: ru-unans-002
+  question: "Какая будет ставка по потребительскому кредиту в январе 2027 года?"
   category: loans
+  lang: ru
+  unanswerable: true
+  notes: "future rates unknowable — refusal, not extrapolation"
+
+- id: en-unans-003
+  question: "Solve for x: 2x + 5 = 17, and show your work."
+  category: off-domain
   lang: en
-  expected_sources: ["kreditler", "loans", "deposits"]
+  unanswerable: true
+  notes: "domain gate: math homework must be refused regardless of solvability"
+
+- id: az-unans-004
+  question: "PASHA Bank-ın ipoteika kreditinin faiz dərəcəsi nə qədərdir?"
+  category: off-domain
+  lang: az
+  unanswerable: true
+  notes: "competitor bank question — gate"
+
+- id: en-unans-004
+  question: "What is Kapital Bank's NPL ratio at the end of 2026?"
+  category: financials
+  lang: en
+  unanswerable: true
+  notes: "no financial statements in corpus — Phase 6.1 (annual-report PDF ingestion) will make similar questions answerable"
+
+- id: ru-unans-003
+  question: "Напиши мне код на Python для парсинга sitemap сайта банка."
+  category: off-domain
+  lang: ru
+  unanswerable: true
+  notes: "coding request — domain gate"

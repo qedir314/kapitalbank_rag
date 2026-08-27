@@ -137,6 +137,30 @@ labels.
 **Definition of done:** hit@6 ≥ 80% on the (by then expanded) golden set;
 az/ru within 10 pp of en; ablation written up with committed CSVs.
 
+#### Phase 2 outcome (2026-08-27) — representation confirmed, query side rejected
+
+| Task | Result |
+|---|---|
+| 2.1 bge-m3 vs e5-base ablation | **done — bge-m3 kept, decisively.** Head-to-head on the identical Phase-1 corpus + golden set (same day, same hybrid config): bge-m3 **72%** / MRR 0.555 vs e5-base 64% / 0.523. The entire gap is the two rebuilt FAQ questions — e5's 512-token window truncates most of a Q&A listing before embedding; bge-m3 at 1,024 sees it. No question is worse under bge-m3. Full table in `docs/hybrid_retrieval.md` |
+| 2.2 query expansion | **implemented, rejected by measurement.** `kb_rag/rag/query_expansion.py` + per-variant RRF in `Retriever` (reranker still scores the original query), toggle `retrieval.query_expansion`, default **off**. A/B (`run_20260827_142300`): hit@6 68% (−4 pp), az/ru hit *dropped* to 56/50% (gap widened — opposite of intent), and one unanswerable stopped being refused on cross-language noise. bge-m3's shared vector space already handles the alignment; expansion adds candidate dilution |
+| 2.3 morphology tokens | **implemented, rejected by measurement.** Additive-only augmentation in `hybrid.tokenize(morph=True)` — Cyrillic→Latin transliteration + one-step az suffix stems (surface tokens always kept, stem ≥ 4 chars), toggle `retrieval.morph_tokens`, default **off**, no index rebuild needed. A/B (`run_20260827_142724`): hit@6 68%, one flip (ru-deposits-001 squeezed out); the cross-script recall wins never converted to a golden-set hit |
+
+**DoD not met — 72%, not 80%, and the target itself is now suspect.** Both
+query-understanding levers regressed slightly from the same index, in the
+same direction as Phase 1's breadcrumb experiment. Three independent
+query-side "wins" that all fail to measure is strong evidence the binding
+constraint is exactly where the Phase 1 post-mortem placed it: 4 corpus
+gaps + 2 golden-label defects, on a 25-question sample where ±1 question =
+±4 pp. **Recommendation: do Phase 3 (references, expanded set, run
+manifests) before any further retrieval experimentation** — the current set
+is too small and partly mislabeled to reliably grade changes of this size,
+which is also why the plan's own sequencing put the measurement work first.
+
+Infra left behind: `KB_CONFIG` env override in `config.get_settings()`
+(run anything with an alternate YAML — the three `config.ablation_*.yaml`
+files are checked in), the `QueryExpander` module, the morphology tokenizer,
+6 new retriever/expander tests + 6 morph tests (81 total, all offline).
+
 ### Phase 3 — Evaluation rigor (make every number defensible)
 
 This phase is what turns "64%" from a lab note into an interview-proof claim.
@@ -152,6 +176,48 @@ This phase is what turns "64%" from a lab note into an interview-proof claim.
 **Definition of done:** every metric in README reproducible from committed
 artifacts; correctness scored against references; judge bias bounded and
 documented.
+
+#### Phase 3 outcome (2026-08-27)
+
+| Task | Result |
+|---|---|
+| 3.1 reference answers | done — all 62 answerable questions carry corpus-grounded `reference_answer` (verified against `pages.jsonl`, not copied from generator output). The judge now scores correctness against ground truth |
+| 3.2 golden set 30 → 74 | done — 62 answerable / 12 unanswerable, every category n ≥ 4, lang×category matrix (az 21 / en 24 / ru 17 answerable). Label fixes: `az-cards-001` (`taksitkartlar`→`taksit`), `az-virtual-001` (→`visa-digital`, the page does exist on birbank.business), `en-faq-001` (dropped non-existent `how-to` fragment). `en-deposits-001` was NOT a label defect — `/en/deposits` exists; it is a genuine rank-7 retrieval miss. `ru-transfers-001` (Zolotaya Korona) reclassified unanswerable: the system is not in the indexed corpus (news-only, excluded) — refusal is now the scored-correct behavior. 3 multi-turn `history` items added; `scripts/validate_golden_set.py` rewritten (URL resolution, schema, reference coverage, stratification, exit codes) and passes |
+| 3.3 run manifests | done — `runner` writes `run_*.manifest.json` (config snapshot, git SHA/dirty, dataset sha256, tag/seed/judge/mode); canonical CSVs + manifests un-ignored and committed; `KB_CONFIG` ablation configs checked in; smoke manifest verified to contain no secrets |
+| 3.5 robustness + variance + citations | done — judge JSON failures retried ×3; per-row `error`/`judge_error` columns (a dead question no longer kills the run); `--seed`/`--seeds` (mean ± std across seeded passes); `citation_metrics.py` (marker validity / bag-of-words support / sentence coverage) with 8 offline tests |
+| 3.4 independent judge | done — R1 re-judge: 75% exact agreement both dimensions; R1 stricter on faithfulness (−0.27, catches premise-confusion answers V3 passed); `deepseek-chat` kept as default judge with the bias now bounded. Required a reasoning-token fix first: R1 at 300 tokens returned empty content (thinking consumed the budget) — judge budget now model-aware (`_judge_max_tokens`) |
+
+**New headline (`run_20260827_150822`, tag `phase3-canonical-74q`, n=74):**
+hit@6 **91.9%** / MRR@6 0.808 — *not comparable to the old 72%*: the old set
+counted corpus-gap and mislabeled questions as misses; the new questions were
+drafted against pages that actually exist. Restricted to the 23 surviving
+original questions (with corrected labels) hit@6 is **87%**. Faithfulness
+4.85 / correctness 4.55 (correctness now reference-anchored), refusal 91.7%
+(11/12 — `az-unans-003` "show my balance" answered with app instructions
+instead of declining: a borderline we deliberately keep strict). Citations:
+100% of `[n]` markers valid, 83% of citing sentences lexically supported by
+the passage they cite, 60% sentence coverage; zero uncited answers.
+
+**What the instrument immediately caught:** (1) 8 low-correctness rows are all
+"correctly-hedged but incomplete" answers the judge *used to accept* — the
+reference makes "context lacks it" fail when the fact is in fact on a page
+retrieval didn't surface (e.g. `az-cards-004`: debit card price IS free on the
+debet page — retrieval miss, not a generation problem); (2) `en-cards-004`
+scored faithfulness 2 — the model answered an on-topic commission question
+with invented framing instead of the landing page's flat 2 AZN rule;
+(3) the multi-turn follow-up (`mt-az-cards-001`) MISSES retrieval because
+**the retriever never sees chat history** — only the bare follow-up is
+embedded. Fix = conversational query condensing (fold into Phase 4.4:
+one LLM call rewriting follow-up+history into a standalone query — the
+QueryExpander machinery from 2.2 is 80% of it).
+
+**Seed variance / judge agreement numbers:** recorded in
+`docs/hybrid_retrieval.md` (evaluation-rigor section).
+
+**Targets check:** hit@6 ≥ 80% — met on the 74-Q set *by redefinition*, and
+87% on the legacy subset; MRR ≥ 0.65 — met (0.808); every published number
+traceable to committed CSV + manifest — met; correctness vs references — met;
+judge bias — bounded below.
 
 ### Phase 4 — Answer quality, safety, product feel
 

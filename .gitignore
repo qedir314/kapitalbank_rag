@@ -32,13 +32,12 @@ venv/
 data/raw/
 # Chroma vector index (~2,550 passages) — rebuild: python -m scripts.build_index --reset
 data/chroma/
+data/chroma_*/
 
 # ---------------------------------------------------------------------------
 # Evaluation outputs
 # ---------------------------------------------------------------------------
 # Ad-hoc eval runs stay untracked; the canonical snapshots referenced by
-# docs/hybrid_retrieval.md are committed so the published numbers are
-# reproducible from the repo.
 eval_results/*
 logs/*.md
 .claude/

@@ -29,7 +29,7 @@ flowchart LR
     G --> I["Grounded prompt<br/>numbered passages · cite [n]"]
     I --> J[DeepSeek chat API\nOpenAI-compatible]
     J --> K[Streamlit chat UI\nstreaming + sources panel]
-    L[Golden QA set\n30 questions] --> M[Eval harness\nhit@k · MRR · LLM-as-judge]
+    L[Golden QA set\n74 questions · reference answers] --> M[Eval harness\nhit@k · MRR · citations · LLM-as-judge]
     G -.-> M
 ```
 
@@ -65,27 +65,41 @@ Pipeline stages (each isolated in `kb_rag/`):
   forward pass), which is far more accurate than the independent-embedding approximation.
   Each stage is a config toggle — the system degrades gracefully to pure dense search.
 - **How do we know it works?** The eval harness scores retrieval objectively (did an expected source
-  page make top-k, at what rank) and generation semi-objectively (LLM-as-judge rubric for
-  faithfulness = nothing invented beyond context, correctness = question actually answered).
-  Known caveat: DeepSeek judging itself has self-bias — the judge model is a one-line config swap.
+  page make top-k, at what rank), citations programmatically (`[n]` markers must exist and their
+  sentences must overlap the cited passage), and generation against **reference answers** verified
+  against the corpus — the LLM judge scores faithfulness (nothing invented beyond context) and
+  correctness (matches ground truth, not just "consistent with whatever was retrieved"). Every run
+  writes a manifest (config snapshot + git SHA + dataset hash) and the canonical CSVs are
+  committed; seeded re-runs quantify variance; a cross-family judge ablation bounds self-bias.
 
 ## Measured evaluation results
 
-`python -m kb_rag.evaluation.runner` on the 30-question golden set (az/en/ru mix,
-5 unanswerables), deepseek-chat generating and judging:
+`python -m kb_rag.evaluation.runner` on the 74-question golden set (62 answerable
+across az/en/ru with corpus-grounded **reference answers**, 12 unanswerables:
+private data, future rates, off-domain requests), deepseek-chat generating and
+judging (`run_20260827_150822`, manifest committed):
 
 | Metric | Value | What it tells you |
 |---|---|---|
-| Retrieval hit@6 | **72%** | share of questions where an expected source page made top-6 |
-| MRR@6 | **0.555** | how high the first relevant page ranks |
-| Judge faithfulness (1–5) | **4.88** | answers rarely claim anything beyond the context |
-| Judge correctness (1–5) | **4.56** | questions get answered correctly despite retrieval noise |
-| Refusal accuracy | **100%** | unanswerable *and off-domain* questions always get an explicit refusal |
+| Retrieval hit@6 | **91.9%** | share of answerable questions where an expected source page made top-6 |
+| MRR@6 | **0.808** | how high the first relevant page ranks |
+| Judge faithfulness (1–5) | **4.85** | answers rarely claim anything beyond the context |
+| Judge correctness (1–5) | **4.55** | now scored *against reference ground truth*, not just context consistency |
+| Refusal accuracy | **91.7%** | unanswerable *and off-domain* questions get an explicit refusal (11/12) |
+| Citations | 100% valid · 83% supported · 60% coverage | every `[n]` marker points at a real passage; most citing sentences lexically overlap it |
 
-Up from a 52% / 0.46 dense-only baseline to this hybrid + bge-m3 + re-ranked
-figure through an evidence-driven retrieval iteration (section taxonomy, FAQ
-extraction, rerank-pool tuning, BM25 IDF scoping) — the full run history and
-per-category breakdown live in [docs/improvement_plan.md](docs/improvement_plan.md).
+**On the numbers across phases:** the earlier 72% was measured on a stricter,
+mislabeled 30-question set that counted corpus gaps as retrieval misses. After
+Phase 3 rebuilt the eval (reference answers, label fixes, questions drafted
+against pages that exist), the same system scores 91.9% overall and **87% on
+the 23 surviving original questions**. Retrieval improvement 52% → 72% on the
+legacy set remains the honest before/after for the *retriever* work (section
+taxonomy, FAQ extraction, rerank-pool tuning, BM25 IDF scoping); query-side
+experiments (embedding ablation, expansion, morphology) are recorded as
+measured wins and losses. Full run history, seed variance (±0.03), independent
+judge agreement, and per-category breakdowns live in
+[docs/improvement_plan.md](docs/improvement_plan.md) and
+[docs/hybrid_retrieval.md](docs/hybrid_retrieval.md).
 
 The before/now progression that produced these numbers (single-sitemap
 dense-only vs. three-sitemap hybrid retrieval), plus a four-way
@@ -96,12 +110,19 @@ so faithfulness here means "nothing claimed beyond the retrieved text" — verif
 assumed. Off-domain questions (math, coding, general knowledge) are refused outright by
 a dedicated domain-gate rule rather than answered from the LLM's general knowledge.
 
-The persistent pattern — strong faithfulness/correctness against a still-modest hit-rate —
-is classic RAG: the generator compensates well for noisy top-k, so *retrieval* coverage
-remains the bottleneck. Hybrid BM25 + the `bge-reranker-v2-m3` cross-encoder have lifted
-it from 52% to 72%; the remaining misses are diagnosed in the improvement plan as
-corpus gaps (topics never crawled, e.g. a standalone virtual-card or branch-hours page)
-and golden-set label defects, which are the next phase's work rather than more tuning.
+The classic RAG pattern held all the way up: hybrid BM25 + the `bge-reranker-v2-m3`
+cross-encoder lifted the legacy-set hit-rate from 52% to 72%, and the remaining misses
+turned out to be *evaluation* defects, not more tuning targets — corpus gaps and
+mislabeled expectations, fixed in Phase 3 (label corrections, honest reclassification,
+reference answers). Five genuine retrieval misses remain on the rebuilt set — e.g. the
+English premium-card query and a deposit page stuck at rank 7 — and the multi-turn item
+proves the retriever never sees chat history (a bare follow-up retrieves nothing), which
+is the next known gap to close. The embedding choice was validated head-to-head (`BAAI/bge-m3` 72% vs
+`multilingual-e5-base` 64% — the entire gap is FAQ recall, where e5's 512-token
+window truncates Q&A listings), and two query-understanding experiments —
+cross-language LLM query expansion and morphology-aware BM25 tokens — each
+measured *below* the 72% baseline and ship as config toggles that are off by
+default, written up as negative results.
 
 Data-engineering findings baked into this repo:
 

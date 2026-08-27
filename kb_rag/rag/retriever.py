@@ -1,9 +1,9 @@
 """Semantic retrieval over the Chroma index with optional metadata filters.
 
-Pipeline per query: dense ANN search + BM25 lexical search -> reciprocal rank
-fusion -> cross-encoder re-scoring of the fused pool -> per-URL dedupe -> top-k.
-Every stage is toggleable from config, degrading gracefully to plain dense
-search when disabled.
+Pipeline per query: (optionally) LLM query expansion into az/en/ru -> per
+variant dense ANN + BM25 -> reciprocal rank fusion -> cross-encoder re-scoring
+of the fused pool -> per-URL dedupe -> top-k. Every stage is toggleable from
+config, degrading gracefully to plain dense search when disabled.
 """
 
 from __future__ import annotations
@@ -32,18 +32,24 @@ def dedupe_by_url(chunks: list[RetrievedChunk], max_per_url: int = 1) -> list[Re
 
 
 class Retriever:
-    def __init__(self, settings: Settings, embedder: E5Embedder, store: VectorStore):
+    def __init__(self, settings: Settings, embedder: E5Embedder, store: VectorStore,
+                 expander=None):
         self.settings = settings
         self.embedder = embedder
         self.store = store
+        # kb_rag.rag.query_expansion.QueryExpander or None (plan 2.2)
+        self.expander = expander
         self._bm25: BM25Index | None = None   # lazy: scans the whole collection once
         self._reranker: CrossEncoderReranker | None = None
 
     @property
     def bm25(self) -> BM25Index:
         if self._bm25 is None:
+            cfg = self.settings.retrieval
             self._bm25 = BM25Index.from_store(
-                self.store, exclude_sections=self.settings.retrieval.exclude_sections
+                self.store,
+                exclude_sections=cfg.exclude_sections,
+                morph_tokens=cfg.morph_tokens,
             )
         return self._bm25
 
@@ -92,6 +98,25 @@ class Retriever:
             return False
         return True
 
+    def _hybrid_candidates(
+        self,
+        query: str,
+        pool: int,
+        where: dict | None,
+        lang: str | None,
+        section: str | list[str] | None,
+    ) -> list[RetrievedChunk]:
+        """Dense ANN + BM25 for one query string, fused by RRF."""
+        cfg = self.settings.retrieval
+        dense = self.store.query(self.embedder.embed_query(query), top_k=pool, where=where)
+
+        candidates = dense
+        if cfg.enable_bm25 and self.bm25.chunks:
+            filter_fn = lambda c: self._passes_filter(c, lang, section, cfg.exclude_sections)
+            sparse = self.bm25.search(query, limit=pool, filter_fn=filter_fn)
+            candidates = reciprocal_rank_fusion([dense, sparse])
+        return candidates
+
     def retrieve(
         self,
         query: str,
@@ -104,13 +129,20 @@ class Retriever:
         pool = max(k * 3, cfg.candidate_pool)
         where = self._build_where(lang, section, cfg.exclude_sections)
 
-        dense = self.store.query(self.embedder.embed_query(query), top_k=pool, where=where)
+        queries = [query]
+        if cfg.query_expansion and self.expander is not None:
+            queries = self.expander.expand(query)
 
-        candidates = dense
-        if cfg.enable_bm25 and self.bm25.chunks:
-            filter_fn = lambda c: self._passes_filter(c, lang, section, cfg.exclude_sections)
-            sparse = self.bm25.search(query, limit=pool, filter_fn=filter_fn)
-            candidates = reciprocal_rank_fusion([dense, sparse])
+        if len(queries) == 1:
+            candidates = self._hybrid_candidates(query, pool, where, lang, section)
+        else:
+            # cross-variant fusion (plan 2.2): language variants tend to surface
+            # different pages, and a chunk found in several rankings earns the
+            # RRF boost; re-ranking still runs on the *original* query so the
+            # final order answers what the user actually asked
+            candidates = reciprocal_rank_fusion([
+                self._hybrid_candidates(q, pool, where, lang, section) for q in queries
+            ])
 
         # dedupe BEFORE re-ranking: two sections of one page would burn two of
         # the few expensive cross-encoder slots on near-identical text

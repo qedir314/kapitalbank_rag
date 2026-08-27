@@ -58,3 +58,42 @@ def test_judge_answer_includes_reference_when_given():
     judge_answer(fake, judge_model="j", question="Q", context="C", answer="A",
                  reference="REF-ANSWER")
     assert "REF-ANSWER" in fake.calls[0]["messages"][1]["content"]
+
+
+class FlakyJudgeLLM:
+    """Returns garbage completions first, then valid judge JSON."""
+
+    def __init__(self, sequence):
+        self.sequence = list(sequence)
+        self.calls = 0
+
+    def complete(self, messages, stream=False, model=None, **kwargs):
+        self.calls += 1
+        return self.sequence.pop(0)
+
+
+GOOD_JUDGE = '{"faithfulness": 4, "correctness": 5, "rationale": "fine"}'
+
+
+def test_judge_answer_retries_on_unparseable_json():
+    client = FlakyJudgeLLM(["not json at all", "also { broken", GOOD_JUDGE])
+    result = judge_answer(
+        client, judge_model="m", question="q", context="ctx", answer="a", retries=3,
+    )
+    assert result.correctness == 5
+    assert client.calls == 3  # two parse failures, then success
+
+
+def test_judge_answer_raises_after_exhausting_retries():
+    client = FlakyJudgeLLM(["garbage"] * 3)
+    with pytest.raises(ValueError):
+        judge_answer(
+            client, judge_model="m", question="q", context="ctx", answer="a", retries=3,
+        )
+    assert client.calls == 3
+
+
+def test_judge_answer_no_retry_on_success():
+    client = FlakyJudgeLLM([GOOD_JUDGE])
+    judge_answer(client, judge_model="m", question="q", context="ctx", answer="a")
+    assert client.calls == 1

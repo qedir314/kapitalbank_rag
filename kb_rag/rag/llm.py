@@ -32,6 +32,7 @@ class DeepSeekClient:
     ) -> str | Iterator[str]:
         """Generate a completion. Returns a string, or a token iterator when streaming."""
         cfg = self.settings.llm
+        extra = {"seed": cfg.seed} if cfg.seed is not None else {}
         try:
             response = self._client.chat.completions.create(
                 model=model or cfg.model,
@@ -39,6 +40,7 @@ class DeepSeekClient:
                 temperature=cfg.temperature if temperature is None else temperature,
                 max_tokens=max_tokens or cfg.max_tokens,
                 stream=stream,
+                **extra,
             )
         except openai.AuthenticationError as exc:
             raise RuntimeError(

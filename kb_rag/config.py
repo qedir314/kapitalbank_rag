@@ -63,6 +63,12 @@ class RetrievalConfig(BaseModel):
     rerank_model: str | None = "BAAI/bge-reranker-v2-m3"
     rerank_candidates: int = 20
     rerank_max_length: int = 320
+    # --- LLM query expansion (plan 2.2): rewrite the query into az/en/ru,
+    # retrieve per variant, fuse by RRF. Costs one extra LLM call per query.
+    query_expansion: bool = False
+    # --- morphology-aware BM25 tokens (plan 2.3): additive Cyrillic→Latin
+    # transliteration + one-step Azerbaijani suffix stripping. BM25-only.
+    morph_tokens: bool = False
 
 
 class LLMConfig(BaseModel):
@@ -71,6 +77,9 @@ class LLMConfig(BaseModel):
     temperature: float = 0.2
     max_tokens: int = 1024
     judge_model: str = "deepseek-chat"
+    # sampling seed for reproducible generation (eval --seed/--seeds variance
+    # runs); None keeps DeepSeek's default nondeterministic sampling
+    seed: int | None = None
 
 
 class ChatConfig(BaseModel):
@@ -106,9 +115,17 @@ class Settings(BaseModel):
 
 @lru_cache(maxsize=1)
 def get_settings() -> Settings:
-    """Load settings once per process (safe to call anywhere)."""
+    """Load settings once per process (safe to call anywhere).
+
+    ``KB_CONFIG`` env var points at an alternate YAML — used for ablation
+    configs (model swaps, query-expansion on/off) without touching the live
+    ``config.yaml``. Relative paths resolve against the project root.
+    """
     load_dotenv(ROOT / ".env")
-    with open(ROOT / "config.yaml", encoding="utf-8") as f:
+    cfg_path = Path(os.environ.get("KB_CONFIG") or "config.yaml")
+    if not cfg_path.is_absolute():
+        cfg_path = ROOT / cfg_path
+    with open(cfg_path, encoding="utf-8") as f:
         raw = yaml.safe_load(f)
     return Settings.model_validate(raw)
 

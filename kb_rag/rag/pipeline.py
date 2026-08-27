@@ -16,6 +16,7 @@ from kb_rag.ingest.embeddings import E5Embedder
 from kb_rag.ingest.store import VectorStore
 from kb_rag.rag.llm import DeepSeekClient
 from kb_rag.rag.prompts import build_context_block, build_messages, build_system_prompt
+from kb_rag.rag.query_expansion import QueryExpander
 from kb_rag.rag.retriever import Retriever
 
 
@@ -42,7 +43,14 @@ class RAGPipeline:
         self.settings = settings
         self.embedder = E5Embedder(settings.embedding)
         self.store = VectorStore(settings)
-        self.retriever = Retriever(settings, self.embedder, self.store)
+        # the expander resolves the LLM client lazily — retrieval without
+        # expansion must keep working even with no API key present
+        expander = (
+            QueryExpander(settings, client=None)
+            if settings.retrieval.query_expansion
+            else None
+        )
+        self.retriever = Retriever(settings, self.embedder, self.store, expander=expander)
         self._llm: DeepSeekClient | None = None
 
     @property

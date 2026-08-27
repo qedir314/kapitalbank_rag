@@ -29,6 +29,10 @@ class GoldenQuestion:
     expected_sources: list[str] = field(default_factory=list)
     unanswerable: bool = False
     reference_answer: str | None = None
+    # prior chat turns for multi-turn items (list of {role, content}) —
+    # fed to the pipeline so follow-up coreference is actually exercised
+    history: list[dict] = field(default_factory=list)
+    notes: str | None = None
 
 
 def load_dataset(path) -> list[GoldenQuestion]:
@@ -45,6 +49,8 @@ def load_dataset(path) -> list[GoldenQuestion]:
                 expected_sources=list(entry.get("expected_sources") or []),
                 unanswerable=bool(entry.get("unanswerable", False)),
                 reference_answer=entry.get("reference_answer"),
+                history=[dict(t) for t in (entry.get("history") or [])],
+                notes=entry.get("notes"),
             )
         )
     return items

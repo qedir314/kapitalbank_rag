@@ -42,6 +42,13 @@ retrieval:
   rerank_model: BAAI/bge-reranker-v2-m3
   rerank_candidates: 20
   rerank_max_length: 320
+  # LLM query expansion (plan 2.2): rewrite the question into az/en/ru,
+  # retrieve per variant, fuse by RRF. One extra DeepSeek call per query —
+  # flip to true only while it measurably wins (see docs/hybrid_retrieval.md)
+  query_expansion: false
+  # additive Cyrillic→Latin transliteration + one-step Azerbaijani suffix
+  # stripping for BM25 tokens (plan 2.3) — same evidence rule as above
+  morph_tokens: false
 
 llm:
   base_url: https://api.deepseek.com

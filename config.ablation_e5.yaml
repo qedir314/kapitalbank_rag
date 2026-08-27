@@ -1,0 +1,50 @@
+# Ablation config (plan task 2.1): intfloat/multilingual-e5-base vs the live
+# BAAI/bge-m3, on the identical corpus + golden set. Index goes to its own
+# Chroma dir so the main data/chroma is never touched.
+# Run:  KB_CONFIG=config.ablation_e5.yaml python -m scripts.build_index --reset
+#       KB_CONFIG=config.ablation_e5.yaml python -m kb_rag.evaluation.runner
+scraper:
+  sitemap_url:
+    - https://www.kapitalbank.az/sitemap.xml
+    - https://birbank.az/sitemap.xml
+    - https://birbank.business/sitemap.xml
+  user_agent: "KapitalRAG-Bot/0.1 (educational RAG project)"
+  request_delay_sec: 0.5
+  timeout_sec: 20
+  retries: 2
+  min_text_chars: 300
+  exclude_url_patterns: ["ccl.birbank.az", "/success"]
+
+embedding:
+  model_name: intfloat/multilingual-e5-base
+  batch_size: 32
+  max_seq_tokens: 512        # hard positional limit of the e5 architecture
+
+chunking:
+  target_chars: 800
+  overlap_chars: 120
+  min_chars: 200
+
+vector_store:
+  persist_dir: data/chroma_e5
+  collection: kapital_kb
+  distance: cosine
+
+retrieval:
+  top_k: 6
+  exclude_sections: ["news"]
+  candidate_pool: 60
+  enable_bm25: true
+  rerank_model: BAAI/bge-reranker-v2-m3
+  rerank_candidates: 20
+  rerank_max_length: 320
+
+llm:
+  base_url: https://api.deepseek.com
+  model: deepseek-chat
+  temperature: 0.2
+  max_tokens: 1024
+  judge_model: deepseek-chat
+
+app:
+  history_turns: 6
