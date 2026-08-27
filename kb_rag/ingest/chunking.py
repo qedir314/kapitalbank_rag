@@ -83,21 +83,48 @@ def sliding_window(text: str, cfg: ChunkingConfig) -> list[str]:
 
 
 def derive_section(url: str) -> str:
-    """Coarse topical section from the URL path, used as a metadata filter."""
-    path = url.split("://", 1)[-1]
+    """Coarse topical section from the URL path, used as a metadata filter.
+
+    Uses pattern matching with priority: card/loan/deposit terms map to their
+    sections even when the exact slug isn't in the known set.
+    """
+    path = url.split("://", 1)[-1].lower()
     parts = [p for p in path.split("/") if p]
     if not parts:
         return "other"
-    if parts[0].lower() in ("en", "ru"):
+    if parts[0] in ("en", "ru", "az"):
         parts = parts[1:]
+    # Exact slug match first (fast path)
     known = {
         "cards", "loans", "deposits", "money-transfers", "sigortalar", "insurance",
         "corporate-banking", "birbank", "kampaniyalar", "news", "faq", "how-to",
         "locations", "online-order", "ferdi-bankciliq",
     }
     for part in parts:
-        if part.lower() in known:
-            return part.lower()
+        if part in known:
+            return part
+    # Pattern-based fallback for compound paths
+    full_path = "/".join(parts)
+    if any(kw in full_path for kw in ["card", "kart", "birbank-miles", "virtual"]):
+        return "cards"
+    if any(kw in full_path for kw in ["loan", "kredit", "kreditler"]):
+        return "loans"
+    if any(kw in full_path for kw in ["deposit", "depzit", "depozit", "əmanət"]):
+        return "deposits"
+    if any(kw in full_path for kw in ["transfer", "pul-kocurmeleri", "western-union", "golden-crown"]):
+        return "money-transfers"
+    if any(kw in full_path for kw in ["sigorta", "insurance", "sığorta"]):
+        return "sigortalar"
+    if "faq" in full_path:
+        return "faq"
+    if "how-to" in full_path or "guide" in full_path:
+        return "how-to"
+    if "location" in full_path or "branch" in full_path or "filial" in full_path:
+        return "locations"
+    if "kampaniya" in full_path or "promotion" in full_path or "campaign" in full_path:
+        return "kampaniyalar"
+    if "news" in full_path:
+        return "news"
     return "other"
 
 

@@ -40,6 +40,8 @@ data/chroma/
 # docs/hybrid_retrieval.md are committed so the published numbers are
 # reproducible from the repo.
 eval_results/*
+logs/*.md
+.claude/
 
 # ---------------------------------------------------------------------------
 # OS junk

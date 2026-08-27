@@ -36,9 +36,9 @@ class ScraperConfig(BaseModel):
 
 
 class EmbeddingConfig(BaseModel):
-    model_name: str = "intfloat/multilingual-e5-base"
-    batch_size: int = 64
-    max_seq_tokens: int = 512
+    model_name: str = "BAAI/bge-m3"
+    batch_size: int = 32
+    max_seq_tokens: int = 1024
 
 
 class ChunkingConfig(BaseModel):
@@ -57,12 +57,12 @@ class RetrievalConfig(BaseModel):
     top_k: int = 6
     exclude_sections: list[str] = []
     # --- hybrid search (dense + BM25 via reciprocal rank fusion) ---
-    candidate_pool: int = 40       # candidates fetched per retriever before fusion
+    candidate_pool: int = 60       # candidates fetched per retriever before fusion
     enable_bm25: bool = True
     # --- cross-encoder re-ranking of the fused pool ---
-    rerank_model: str | None = None  # e.g. BAAI/bge-reranker-v2-m3; null disables
-    rerank_candidates: int = 16
-    rerank_max_length: int = 448
+    rerank_model: str | None = "BAAI/bge-reranker-v2-m3"
+    rerank_candidates: int = 20
+    rerank_max_length: int = 320
 
 
 class LLMConfig(BaseModel):

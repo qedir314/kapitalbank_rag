@@ -13,7 +13,8 @@ from kb_rag.rag.pipeline import get_pipeline
 st.set_page_config(page_title="Kapital Bank RAG Assistant", page_icon="🏦", layout="centered")
 
 SECTIONS = ["cards", "loans", "deposits", "money-transfers", "sigortalar",
-            "corporate-banking", "birbank", "faq", "how-to", "news", "other"]
+            "corporate-banking", "birbank", "faq", "how-to", "news", "other",
+            "locations", "kampaniyalar", "ferdi-bankciliq", "online-order", "insurance"]
 
 
 @st.cache_resource(show_spinner="Loading embedding model and index…")

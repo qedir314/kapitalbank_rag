@@ -13,10 +13,10 @@ scraper:
   exclude_url_patterns: ["ccl.birbank.az", "/success"]
 
 embedding:
-  # multilingual e5 covers az/ru/en; swap for BAAI/bge-m3 if retrieval quality demands it
-  model_name: intfloat/multilingual-e5-base
-  batch_size: 64
-  max_seq_tokens: 512        # e5 hard cap
+  # multilingual e5 covers az/ru/en; BAAI/bge-m3 has better multilingual support and 8k context
+  model_name: BAAI/bge-m3
+  batch_size: 32
+  max_seq_tokens: 1024       # bge-m3 supports up to 8192, but chunks are ~800 chars
 
 chunking:
   target_chars: 800          # sliding-window size per section
@@ -40,7 +40,7 @@ retrieval:
   candidate_pool: 60
   enable_bm25: true
   rerank_model: BAAI/bge-reranker-v2-m3
-  rerank_candidates: 10
+  rerank_candidates: 20
   rerank_max_length: 320
 
 llm:

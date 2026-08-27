@@ -124,6 +124,32 @@ def test_bm25_from_store_uses_get_all_chunks():
     assert idx.search("kredit", limit=1)[0].url == "https://x.az/a"
 
 
+def test_bm25_exclude_sections_filters_corpus_at_build_time():
+    """Excluded sections are dropped from the BM25 corpus (not just at query time)."""
+    chunks = [
+        _chunk("kredit kartı", "https://x.az/cards", section="cards"),
+        _chunk("kredit xəbərləri", "https://x.az/news/1", section="news"),
+        _chunk("başqa kredit xəbəri", "https://x.az/news/2", section="news"),
+    ]
+    idx = BM25Index(chunks, exclude_sections=["news"])
+    assert len(idx.chunks) == 1  # only the cards chunk is indexed
+    assert idx.chunks[0].section == "cards"
+    # search still works over the filtered corpus
+    results = idx.search("kredit", limit=5)
+    assert len(results) == 1
+    assert results[0].section == "cards"
+
+
+def test_bm25_exclude_sections_default_empty():
+    """Without exclude_sections, all chunks are indexed."""
+    chunks = [
+        _chunk("a", "https://x.az/a", section="cards"),
+        _chunk("b", "https://x.az/b", section="news"),
+    ]
+    idx = BM25Index(chunks)
+    assert len(idx.chunks) == 2
+
+
 # --------------------------------------------------------------------------- RRF
 def test_rrf_promotes_docs_present_in_both_rankings():
     a = _chunk("doc A", "https://x.az/a")
@@ -207,7 +233,7 @@ def test_reranker_sorts_descending_and_rescales_logits(monkeypatch):
     import types
 
     fake_st = types.ModuleType("sentence_transformers")
-    fake_st.CrossEncoder = lambda name, max_length=None: _FakeCrossEncoder(
+    fake_st.CrossEncoder = lambda name, max_length=None, device=None: _FakeCrossEncoder(
         [3.0, -3.0, 0.5], model_name=name, max_length=max_length
     )
     monkeypatch.setitem(sys.modules, "sentence_transformers", fake_st)

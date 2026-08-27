@@ -27,15 +27,22 @@ def tokenize(text: str) -> list[str]:
 
 
 class BM25Index:
-    """In-memory BM25 over the indexed chunks (corpus fits comfortably in RAM)."""
+    """In-memory BM25 over the indexed chunks (corpus fits comfortably in RAM).
 
-    def __init__(self, chunks: list[RetrievedChunk]):
-        self.chunks = chunks
-        self._bm25 = BM25Okapi([tokenize(c.text) for c in chunks]) if chunks else None
+    ``exclude_sections`` lets queries drop chunks from the BM25 corpus so IDF
+    statistics aren't skewed by content the queries would never return (e.g.
+    news pages excluded at query time by config).
+    """
+
+    def __init__(self, chunks: list[RetrievedChunk], exclude_sections: list[str] | None = None):
+        exclude = set(exclude_sections or [])
+        self.chunks = [c for c in chunks if c.section not in exclude] if exclude else list(chunks)
+        self._all_chunks = list(chunks)  # keep reference for introspection / tests
+        self._bm25 = BM25Okapi([tokenize(c.text) for c in self.chunks]) if self.chunks else None
 
     @classmethod
-    def from_store(cls, store) -> "BM25Index":
-        return cls(store.get_all_chunks())
+    def from_store(cls, store, exclude_sections: list[str] | None = None) -> "BM25Index":
+        return cls(store.get_all_chunks(), exclude_sections=exclude_sections)
 
     def search(
         self,
@@ -99,9 +106,11 @@ class CrossEncoderReranker:
     @property
     def model(self):
         if self._model is None:  # lazy: heavy download/load on first query only
+            import torch
             from sentence_transformers import CrossEncoder
 
-            self._model = CrossEncoder(self.model_name, max_length=self.max_length)
+            device = "cuda" if torch.cuda.is_available() else "cpu"
+            self._model = CrossEncoder(self.model_name, max_length=self.max_length, device=device)
         return self._model
 
     def rerank(self, query: str, chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:

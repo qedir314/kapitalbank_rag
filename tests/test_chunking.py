@@ -68,3 +68,18 @@ def test_derive_section_handles_lang_prefixes_and_unknown():
     assert derive_section("https://kapitalbank.az/ru/deposits/x") == "deposits"
     assert derive_section("https://kapitalbank.az/faq") == "faq"
     assert derive_section("https://birbank.az/az/whatever/page") == "other"
+
+
+def test_derive_section_pattern_matching():
+    """Pattern-based fallback should categorize compound paths correctly."""
+    # Card-related URLs
+    assert derive_section("https://kapitalbank.az/card-services") == "cards"
+    assert derive_section("https://kapitalbank.az/en/card-terms") == "cards"
+    assert derive_section("https://kapitalbank.az/card-services/3d-secure") == "cards"
+    assert derive_section("https://birbank.az/virtual-cards") == "cards"
+    # Loan-related
+    assert derive_section("https://kapitalbank.az/consumer-loan") == "loans"
+    # Deposit-related
+    assert derive_section("https://kapitalbank.az/reqemsal-depozit") == "deposits"
+    # Transfer-related
+    assert derive_section("https://kapitalbank.az/international-transfers") == "money-transfers"

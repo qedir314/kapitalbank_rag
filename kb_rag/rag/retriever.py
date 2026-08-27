@@ -42,7 +42,9 @@ class Retriever:
     @property
     def bm25(self) -> BM25Index:
         if self._bm25 is None:
-            self._bm25 = BM25Index.from_store(self.store)
+            self._bm25 = BM25Index.from_store(
+                self.store, exclude_sections=self.settings.retrieval.exclude_sections
+            )
         return self._bm25
 
     @property
