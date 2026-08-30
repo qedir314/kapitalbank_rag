@@ -29,8 +29,8 @@ flowchart LR
     X --> G[top-6 + per-URL dedupe]
     G --> I["Grounded prompt\nnumbered passages · cite [n]"]
     I --> J[DeepSeek chat API\nOpenAI-compatible]
-    J --> V[runtime citation verification\nunsupported [n] flagged]
-    V --> K[Streamlit chat UI\nstreaming · sources · "as of" dates · feedback]
+    J --> V["runtime citation verification\nunsupported [n] flagged"]
+    V --> K["Streamlit chat UI\nstreaming · sources · 'as of' dates · feedback"]
     L[Golden QA set\n76 questions · reference answers] --> M[Eval harness\nhit@k · MRR · citations · LLM-as-judge]
     G -.-> M
 ```
